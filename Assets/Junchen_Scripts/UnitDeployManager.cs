@@ -7,6 +7,9 @@ public class UnitDeployManager : MonoBehaviour
     [Header("Unit prefab selected for deployment")]
     public GameObject selectedUnitPrefab;
 
+    [Header("Last clicked UI button")]
+    public GameObject lastSelectedButton;
+
     private void Awake()
     {
         // Singleton pattern: ensure only one instance exists
@@ -24,6 +27,10 @@ public class UnitDeployManager : MonoBehaviour
     public void SelectUnit(GameObject unitPrefab)
     {
         selectedUnitPrefab = unitPrefab;
+
+        // Record last clicked button
+        lastSelectedButton = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
+
         Debug.Log($"Selected unit: {unitPrefab.name}");
     }
 

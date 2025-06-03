@@ -17,6 +17,13 @@ public class TileClickSpawner : MonoBehaviour
                 OverlayTile tile = hit.collider.GetComponent<OverlayTile>();
                 if (tile != null && UnitDeployManager.Instance.selectedUnitPrefab != null)
                 {
+                    // Check if tile is already occupied
+                    if (tile.isBlocked)
+                    {
+                        Debug.Log("This tile is already occupied. Cannot deploy unit here.");
+                        return;
+                    }
+
                     // Instantiate unit on the tile
                     GameObject newUnit = Instantiate(UnitDeployManager.Instance.selectedUnitPrefab);
                     newUnit.transform.position = tile.transform.position;
@@ -31,11 +38,22 @@ public class TileClickSpawner : MonoBehaviour
                         info.standOnTile = tile;
                     }
 
-                    // (Optional) Mark tile as blocked
-                    tile.isBlocked = true;
+                    // Mark tile as blocked
+                    tile.MarkAsBlocked();
 
                     // Clear current selection after deployment
                     UnitDeployManager.Instance.ClearSelection();
+
+                    // Disable the last clicked button (if any)
+                    GameObject lastButton = UnitDeployManager.Instance.lastSelectedButton;
+                    if (lastButton != null)
+                    {
+                        UnitButtonController controller = lastButton.GetComponent<UnitButtonController>();
+                        if (controller != null)
+                        {
+                            controller.DisableButton();
+                        }
+                    }
 
                     Debug.Log($"Unit spawned on tile: {tile.name}");
                 }
