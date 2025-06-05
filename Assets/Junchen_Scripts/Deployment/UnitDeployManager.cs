@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitDeployManager : MonoBehaviour
@@ -9,6 +10,9 @@ public class UnitDeployManager : MonoBehaviour
 
     [Header("Last clicked UI button")]
     public GameObject lastSelectedButton;
+
+    // Tracks all deployed units for cleanup
+    private List<GameObject> deployedUnits = new List<GameObject>();
 
     private void Awake()
     {
@@ -38,5 +42,26 @@ public class UnitDeployManager : MonoBehaviour
     public void ClearSelection()
     {
         selectedUnitPrefab = null;
+    }
+
+    // Registers a unit after it's deployed so we can clear it later
+    public void RegisterDeployedUnit(GameObject unit)
+    {
+        deployedUnits.Add(unit);
+    }
+
+    // Destroys all deployed units and clears the list
+    public void ClearAllDeployedUnits()
+    {
+        foreach (GameObject unit in deployedUnits)
+        {
+            if (unit != null)
+            {
+                Destroy(unit);
+            }
+        }
+
+        deployedUnits.Clear();
+        Debug.Log("[DeployManager] All deployed units cleared.");
     }
 }

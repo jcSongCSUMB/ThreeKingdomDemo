@@ -31,6 +31,9 @@ public class TileClickSpawner : MonoBehaviour
                     // Optional: set as child of Grid
                     newUnit.transform.SetParent(GameObject.Find("Grid").transform);
 
+                    // Register unit for reset tracking
+                    UnitDeployManager.Instance.RegisterDeployedUnit(newUnit);
+
                     // Link character info to the tile
                     CharacterInfo info = newUnit.GetComponent<CharacterInfo>();
                     if (info != null)
