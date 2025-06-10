@@ -4,7 +4,7 @@ public class TileClickSpawner : MonoBehaviour
 {
     void Update()
     {
-        // Left-click detection
+        // Detect left mouse button click
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -17,6 +17,21 @@ public class TileClickSpawner : MonoBehaviour
                 OverlayTile tile = hit.collider.GetComponent<OverlayTile>();
                 if (tile != null && UnitDeployManager.Instance.selectedUnitPrefab != null)
                 {
+                    // Check if the tile is a valid player deploy zone
+                    if (!tile.isPlayerDeployZone)
+                    {
+                        // Show reason based on zone type
+                        if (tile.isEnemyDeployZone)
+                        {
+                            Debug.Log("This is an enemy deploy zone. You cannot deploy here.");
+                        }
+                        else
+                        {
+                            Debug.Log("This tile is not a valid deployment zone.");
+                        }
+                        return;
+                    }
+
                     // Check if tile is already occupied
                     if (tile.isBlocked)
                     {
@@ -24,30 +39,30 @@ public class TileClickSpawner : MonoBehaviour
                         return;
                     }
 
-                    // Instantiate unit on the tile
+                    // Instantiate the selected unit prefab
                     GameObject newUnit = Instantiate(UnitDeployManager.Instance.selectedUnitPrefab);
                     newUnit.transform.position = tile.transform.position;
 
                     // Optional: set as child of Grid
                     newUnit.transform.SetParent(GameObject.Find("Grid").transform);
 
-                    // Register unit for reset tracking
+                    // Register for cleanup tracking
                     UnitDeployManager.Instance.RegisterDeployedUnit(newUnit);
 
-                    // Link character info to the tile
+                    // Attach character logic to tile
                     CharacterInfo info = newUnit.GetComponent<CharacterInfo>();
                     if (info != null)
                     {
                         info.standOnTile = tile;
                     }
 
-                    // Mark tile as blocked
+                    // Mark this tile as blocked
                     tile.MarkAsBlocked();
 
-                    // Clear current selection after deployment
+                    // Clear current unit selection
                     UnitDeployManager.Instance.ClearSelection();
 
-                    // Disable the last clicked button (if any)
+                    // Disable the last selected button
                     GameObject lastButton = UnitDeployManager.Instance.lastSelectedButton;
                     if (lastButton != null)
                     {
@@ -58,7 +73,7 @@ public class TileClickSpawner : MonoBehaviour
                         }
                     }
 
-                    Debug.Log($"Unit spawned on tile: {tile.name}");
+                    Debug.Log($"Unit successfully deployed on tile: {tile.gridLocation}");
                 }
             }
         }

@@ -15,9 +15,13 @@ public class BattleUIController : MonoBehaviour
 
     private void Start()
     {
+        // Ensure deploy zone is hidden at the very beginning
+        MapManager.Instance.HideDeployZones();
+
+        // Start the opening animation
         StartCoroutine(PlayPrepareSequence());
 
-        // Attach button listeners
+        // Attach button listeners for Reset and Start
         if (resetButton != null)
             resetButton.onClick.AddListener(OnResetClicked);
 
@@ -30,7 +34,7 @@ public class BattleUIController : MonoBehaviour
     // Step 2: Fade in unit deployment panel
     private IEnumerator PlayPrepareSequence()
     {
-        // Ensure starting states
+        // Set initial visibility states
         prepareUIGroup.alpha = 1f;
         prepareUIGroup.interactable = false;
         prepareUIGroup.blocksRaycasts = false;
@@ -42,7 +46,7 @@ public class BattleUIController : MonoBehaviour
         // Display prepare text for 2 seconds
         yield return new WaitForSeconds(2f);
 
-        // Fade out prepare text
+        // Gradually fade out the prepare text
         while (prepareUIGroup.alpha > 0f)
         {
             prepareUIGroup.alpha -= Time.deltaTime;
@@ -51,7 +55,7 @@ public class BattleUIController : MonoBehaviour
         prepareUIGroup.alpha = 0f;
         prepareUIGroup.gameObject.SetActive(false);
 
-        // Fade in the deployment button panel
+        // Gradually fade in the deployment button panel
         while (buttonPanelGroup.alpha < 1f)
         {
             buttonPanelGroup.alpha += Time.deltaTime;
@@ -81,6 +85,9 @@ public class BattleUIController : MonoBehaviour
             btn.ResetButton();  // You must implement this method in UnitButtonController
         }
 
+        // NEW: Hide deploy zone after reset
+        MapManager.Instance.HideDeployZones();
+
         Debug.Log("[BattleUI] Reset completed.");
     }
 
@@ -91,6 +98,9 @@ public class BattleUIController : MonoBehaviour
         buttonPanelGroup.alpha = 0f;
         buttonPanelGroup.interactable = false;
         buttonPanelGroup.blocksRaycasts = false;
+
+        // NEW: Ensure deploy zone is hidden after transition
+        MapManager.Instance.HideDeployZones();
 
         // Placeholder for actual battle logic
         Debug.Log("[BattleUI] Start clicked. Transition to battle phase.");

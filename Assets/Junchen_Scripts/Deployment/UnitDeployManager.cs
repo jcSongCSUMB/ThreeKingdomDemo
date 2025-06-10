@@ -36,12 +36,18 @@ public class UnitDeployManager : MonoBehaviour
         lastSelectedButton = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
 
         Debug.Log($"Selected unit: {unitPrefab.name}");
+
+        // NEW: Show red/green deploy zones when a unit is selected
+        MapManager.Instance.ShowDeployZones();
     }
 
     // Clears the current selection (used when deployment is canceled or completed)
     public void ClearSelection()
     {
         selectedUnitPrefab = null;
+
+        // NEW: Hide deploy zones when selection is cleared
+        MapManager.Instance.HideDeployZones();
     }
 
     // Registers a unit after it's deployed so we can clear it later
