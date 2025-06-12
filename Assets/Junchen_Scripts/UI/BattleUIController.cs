@@ -64,6 +64,9 @@ public class BattleUIController : MonoBehaviour
         buttonPanelGroup.alpha = 1f;
         buttonPanelGroup.interactable = true;
         buttonPanelGroup.blocksRaycasts = true;
+
+        // After UI finishes transitioning, trigger enemy deployment
+        EnemyDeploymentManager.Instance.AutoDeployEnemies();
     }
 
     // Handles Reset button click
