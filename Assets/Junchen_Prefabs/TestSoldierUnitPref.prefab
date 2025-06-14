@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2943533530713408671}
   - component: {fileID: 5538690102583131763}
-  - component: {fileID: 8181998476311909841}
+  - component: {fileID: 2102899451654402955}
   m_Layer: 0
   m_Name: TestSoldierUnitPref
   m_TagString: PlayerSoldierUnit
@@ -88,7 +88,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
---- !u!114 &8181998476311909841
+--- !u!114 &2102899451654402955
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,8 +97,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 6143327340201138887}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0de8fbf416de0304e868a193d4cbf019, type: 3}
+  m_Script: {fileID: 11500000, guid: a4d5a496ec3617145803e06527c59ff5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   standOnTile: {fileID: 9192923022027356150, guid: fb5a0aa8717d1c445b1f00b794cb7b67,
     type: 3}
+  plannedPath: []
+  plannedAction: 0
+  hasFinishedAction: 0
+  teamType: 0
