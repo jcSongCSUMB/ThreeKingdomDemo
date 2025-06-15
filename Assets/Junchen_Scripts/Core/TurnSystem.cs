@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public enum TurnPhase
@@ -11,22 +10,27 @@ public enum TurnPhase
 
 public class TurnSystem : MonoBehaviour
 {
+    // Singleton instance
     public static TurnSystem Instance;
 
-    // Current phase of the battle
+    // Flag to indicate battle phase has started
+    public bool battleStarted = false;
+
+    // Current phase of the turn
     public TurnPhase currentPhase = TurnPhase.PlayerPlanning;
 
-    // Current round number
+    // Current turn number
     public int currentTurn = 1;
 
-    // List of all units on the field
+    // List of all units in the battle
     private List<BaseUnit> allUnits = new List<BaseUnit>();
 
-    // Index for executing units during PlayerExecuting
+    // Index used to track execution order
     private int executingIndex = 0;
 
     private void Awake()
     {
+        // Ensure only one instance of TurnSystem exists
         if (Instance == null)
         {
             Instance = this;
@@ -37,50 +41,58 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Moves to the next battle phase
+    // Add a unit to the list if not already present
+    public void RegisterUnit(BaseUnit unit)
+    {
+        if (!allUnits.Contains(unit))
+        {
+            allUnits.Add(unit);
+        }
+    }
+
+    // Move to the next phase in the turn cycle
     public void NextPhase()
     {
         switch (currentPhase)
         {
             case TurnPhase.PlayerPlanning:
                 currentPhase = TurnPhase.PlayerExecuting;
-                Debug.Log("[TurnSystem] → PlayerExecuting");
-
-                // Collect all player-controlled units
-                allUnits = FindObjectsOfType<BaseUnit>()
-                    .Where(u => u.teamType == UnitTeam.Player)
-                    .ToList();
-
+                ResetUnitStates(UnitTeam.Player);
                 executingIndex = 0;
 
-                // TODO: Start executing unit actions
+                // TODO: Execute all planned actions by player units
                 break;
 
             case TurnPhase.PlayerExecuting:
                 currentPhase = TurnPhase.EnemyTurn;
-                Debug.Log("[TurnSystem] → EnemyTurn");
 
-                // TODO: Trigger enemy AI logic
+                // TODO: Trigger AI logic for enemy turn
                 break;
 
             case TurnPhase.EnemyTurn:
-                currentTurn++;
                 currentPhase = TurnPhase.PlayerPlanning;
-                Debug.Log($"[TurnSystem] → Round {currentTurn} begins");
+                currentTurn++;
 
-                // Reset all units for the new planning phase
-                foreach (BaseUnit unit in FindObjectsOfType<BaseUnit>())
-                {
-                    unit.hasFinishedAction = false;
-                    unit.plannedPath.Clear();
-                    unit.plannedAction = PlannedAction.None;
-                }
-
+                // TODO: Reset board and allow new planning
                 break;
+        }
+
+        Debug.Log($"Turn Phase changed to: {currentPhase}");
+    }
+
+    // Reset action status of all units on a team
+    private void ResetUnitStates(UnitTeam team)
+    {
+        foreach (BaseUnit unit in allUnits)
+        {
+            if (unit.teamType == team)
+            {
+                unit.hasFinishedAction = false;
+            }
         }
     }
 
-    // Returns true if it's currently the PlayerPlanning phase
+    // Check if it's currently the player planning phase
     public bool IsPlanningPhase()
     {
         return currentPhase == TurnPhase.PlayerPlanning;

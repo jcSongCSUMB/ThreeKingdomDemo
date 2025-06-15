@@ -88,7 +88,7 @@ public class BattleUIController : MonoBehaviour
             btn.ResetButton();  // You must implement this method in UnitButtonController
         }
 
-        // NEW: Hide deploy zone after reset
+        // Hide deploy zone after reset
         MapManager.Instance.HideDeployZones();
 
         Debug.Log("[BattleUI] Reset completed.");
@@ -102,8 +102,11 @@ public class BattleUIController : MonoBehaviour
         buttonPanelGroup.interactable = false;
         buttonPanelGroup.blocksRaycasts = false;
 
-        // NEW: Ensure deploy zone is hidden after transition
+        // Ensure deploy zone is hidden after transition
         MapManager.Instance.HideDeployZones();
+
+        // Mark the battle as started in TurnSystem
+        TurnSystem.Instance.battleStarted = true;
 
         // Placeholder for actual battle logic
         Debug.Log("[BattleUI] Start clicked. Transition to battle phase.");
