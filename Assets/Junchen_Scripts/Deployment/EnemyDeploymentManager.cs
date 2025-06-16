@@ -60,6 +60,13 @@ public class EnemyDeploymentManager : MonoBehaviour
                 info.standOnTile = tile;
             }
 
+            // Set standOnTile in BaseUnit for selection logic
+            BaseUnit unit = enemy.GetComponent<BaseUnit>();
+            if (unit != null)
+            {
+                unit.standOnTile = tile;
+            }
+
             Debug.Log($"[EnemyDeploy] Enemy unit deployed at tile: {tile.gridLocation}");
         }
     }

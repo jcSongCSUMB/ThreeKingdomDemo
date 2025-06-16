@@ -37,11 +37,28 @@ public class UnitSelector : MonoBehaviour
                     {
                         currentUnit = unit;
                         Debug.Log($"Unit selected: {unit.name} at tile {tile.grid2DLocation}");
+
+                        // Show action panel if in PlayerPlanning phase
+                        if (TurnSystem.Instance.IsPlanningPhase())
+                        {
+                            PlannerActionPanelController panel = FindObjectOfType<PlannerActionPanelController>();
+                            if (panel != null)
+                            {
+                                panel.Show();
+                            }
+                        }
                     }
                     else
                     {
                         currentUnit = null;
                         Debug.Log("No selectable unit on this tile, selection cleared.");
+
+                        // Hide action panel when deselecting
+                        PlannerActionPanelController panel = FindObjectOfType<PlannerActionPanelController>();
+                        if (panel != null)
+                        {
+                            panel.Hide();
+                        }
                     }
                 }
             }

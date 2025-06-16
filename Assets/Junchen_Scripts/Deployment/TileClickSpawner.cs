@@ -56,6 +56,13 @@ public class TileClickSpawner : MonoBehaviour
                         info.standOnTile = tile;
                     }
 
+                    // Set standOnTile in BaseUnit for selection logic
+                    BaseUnit unit = newUnit.GetComponent<BaseUnit>();
+                    if (unit != null)
+                    {
+                        unit.standOnTile = tile;
+                    }
+
                     // Mark this tile as blocked
                     tile.MarkAsBlocked();
 
