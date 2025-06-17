@@ -3,8 +3,19 @@ using System.Linq;
 
 public class UnitSelector : MonoBehaviour
 {
+    // Singleton reference to allow external access
+    public static UnitSelector Instance;
+
     // Public static reference to the currently selected player unit
     public static BaseUnit currentUnit;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+            Destroy(gameObject);
+        else
+            Instance = this;
+    }
 
     void Update()
     {
@@ -26,6 +37,8 @@ public class UnitSelector : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
             if (hit.collider != null)
             {
+                Debug.Log($"[Selector] Clicked object: {hit.collider.name}");
+
                 OverlayTile tile = hit.collider.GetComponent<OverlayTile>();
                 if (tile != null)
                 {
@@ -33,34 +46,52 @@ public class UnitSelector : MonoBehaviour
                     BaseUnit unit = FindObjectsOfType<BaseUnit>()
                         .FirstOrDefault(u => u.standOnTile == tile && u.teamType == UnitTeam.Player && !u.hasFinishedAction);
 
+                    PlannerActionPanelController panel = FindObjectOfType<PlannerActionPanelController>();
+                    TileClickPathPlanner planner = FindObjectOfType<TileClickPathPlanner>();
+
                     if (unit != null)
                     {
                         currentUnit = unit;
-                        Debug.Log($"Unit selected: {unit.name} at tile {tile.grid2DLocation}");
+                        Debug.Log($"[Selector] Unit selected: {unit.name} at tile {tile.grid2DLocation}");
 
-                        // Show action panel if in PlayerPlanning phase
-                        if (TurnSystem.Instance.IsPlanningPhase())
+                        // Show action panel
+                        if (panel != null)
                         {
-                            PlannerActionPanelController panel = FindObjectOfType<PlannerActionPanelController>();
-                            if (panel != null)
-                            {
-                                panel.Show();
-                            }
+                            panel.Show();
+                        }
+
+                        // If in Move mode, refresh movement range for new unit
+                        if (planner != null && planner.plannerMode == PlannerMode.Move)
+                        {
+                            planner.SetPlannerMode(PlannerMode.Move);
                         }
                     }
                     else
                     {
                         currentUnit = null;
-                        Debug.Log("No selectable unit on this tile, selection cleared.");
+                        Debug.Log("[Selector] No selectable unit on this tile. Selection cleared.");
 
-                        // Hide action panel when deselecting
-                        PlannerActionPanelController panel = FindObjectOfType<PlannerActionPanelController>();
+                        // Hide panel if no unit selected
                         if (panel != null)
                         {
                             panel.Hide();
                         }
+
+                        // Clear planner state
+                        if (planner != null)
+                        {
+                            planner.SetPlannerMode(PlannerMode.None);
+                        }
                     }
                 }
+                else
+                {
+                    Debug.Log("[Selector] Clicked object is not an OverlayTile.");
+                }
+            }
+            else
+            {
+                Debug.Log("[Selector] Nothing hit by Raycast.");
             }
         }
     }

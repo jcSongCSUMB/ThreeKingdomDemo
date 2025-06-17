@@ -1,34 +1,57 @@
 using UnityEngine;
 
+/// <summary>
+/// Controls the display and button interactions of the planner action panel.
+/// This script should be attached to a persistent, active GameObject in the scene (not the panel itself).
+/// The panel reference must be manually assigned in the Inspector.
+/// </summary>
 public class PlannerActionPanelController : MonoBehaviour
 {
-    public GameObject panel; // Reference to the planner action panel GameObject
+    // Reference to the PlannerActionPanel (UI object containing the buttons)
+    public GameObject panel;
 
-    // Show the action button panel
+    /// <summary>
+    /// Shows the action panel (e.g. after selecting a unit).
+    /// </summary>
     public void Show()
     {
+        Debug.Log("[PlannerPanel] Show() called");
         panel.SetActive(true);
     }
 
-    // Hide the panel (e.g., when unit is deselected)
+    /// <summary>
+    /// Hides the action panel (e.g. after deselecting a unit).
+    /// </summary>
     public void Hide()
     {
+        Debug.Log("[PlannerPanel] Hide() called");
         panel.SetActive(false);
     }
 
-    // Button click events
+    /// <summary>
+    /// Called by the Move button. Sets planner mode to Move.
+    /// </summary>
     public void OnMoveClicked()
     {
-        TileClickPathPlanner.Instance.SetPlannerMode(PlannerMode.Move);
+        Debug.Log("[PlannerPanel] Move button clicked");
+        FindObjectOfType<TileClickPathPlanner>().SetPlannerMode(PlannerMode.Move);
     }
 
+    /// <summary>
+    /// Called by the Attack button. Sets planner mode to Attack.
+    /// </summary>
     public void OnAttackClicked()
     {
-        TileClickPathPlanner.Instance.SetPlannerMode(PlannerMode.Attack);
+        Debug.Log("[PlannerPanel] Attack button clicked");
+        FindObjectOfType<TileClickPathPlanner>().SetPlannerMode(PlannerMode.Attack);
     }
 
+    /// <summary>
+    /// Called by the Defend button. Sets planner mode to Defend.
+    /// </summary>
     public void OnDefendClicked()
     {
-        TileClickPathPlanner.Instance.SetPlannerMode(PlannerMode.Defend);
+        Debug.Log("[PlannerPanel] Defend button clicked");
+        FindObjectOfType<TileClickPathPlanner>().SetPlannerMode(PlannerMode.Defend);
     }
 }

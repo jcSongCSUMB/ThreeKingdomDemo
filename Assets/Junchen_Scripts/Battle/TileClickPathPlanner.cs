@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 public enum PlannerMode
 {
@@ -10,36 +12,144 @@ public enum PlannerMode
 
 public class TileClickPathPlanner : MonoBehaviour
 {
-    public static TileClickPathPlanner Instance;
-
     public PlannerMode plannerMode = PlannerMode.None;
 
-    private void Awake()
+    private List<OverlayTile> currentRangeTiles = new List<OverlayTile>();       // to highlight the tiles within unit's range
+    private List<OverlayTile> currentHoverPath = new List<OverlayTile>();        // to show the path after calculation
+
+    private RangeFinder rangeFinder = new RangeFinder();
+    private PathFinder pathFinder = new PathFinder();
+    private ArrowTranslator arrowTranslator = new ArrowTranslator();
+
+    private BaseUnit currentUnit;    // Reference passed from PathPlannerInputHandler
+
+    // Public getter for external access to range tiles
+    public List<OverlayTile> HighlightedTiles => currentRangeTiles;
+
+    // Clears both tile highlights and path arrows
+    public void ClearAllHighlights()
     {
-        if (Instance != null && Instance != this)
-            Destroy(gameObject);
-        else
-            Instance = this;
+        ClearPreviousRangeTiles();
+        ClearPathVisual();
     }
 
-    // Set the current planner mode based on UI input
     public void SetPlannerMode(PlannerMode mode)
     {
-        // Only allow setting during the planning phase
         if (!TurnSystem.Instance.IsPlanningPhase())
         {
             Debug.Log("[Planner] Cannot set mode, not in planning phase");
             return;
         }
 
-        // Only allow setting when a unit is selected
-        if (UnitSelector.currentUnit == null)
+        BaseUnit unit = currentUnit ?? UnitSelector.currentUnit;
+        if (unit == null)
         {
             Debug.Log("[Planner] No unit selected");
             return;
         }
 
+        ClearPreviousRangeTiles();
+        ClearPathVisual();
+
         plannerMode = mode;
         Debug.Log($"[Planner] Mode set to: {plannerMode}");
+
+        if (plannerMode == PlannerMode.Move)
+        {
+            ShowMovementRange(unit);
+        }
+    }
+
+    public void SetCurrentUnit(BaseUnit unit)
+    {
+        currentUnit = unit;
+    }
+
+    private void ShowMovementRange(BaseUnit unit)
+    {
+        Vector2Int unitPos = unit.standOnTile.grid2DLocation;
+        currentRangeTiles = rangeFinder.GetTilesInRange(unitPos, 3);
+
+        foreach (var tile in currentRangeTiles)
+        {
+            tile.ShowTile();
+        }
+
+        Debug.Log($"[Planner] Showing movement range tiles: {currentRangeTiles.Count}");
+    }
+
+    private void ClearPreviousRangeTiles()
+    {
+        foreach (var tile in currentRangeTiles)
+        {
+            tile.HideTile();
+        }
+        currentRangeTiles.Clear();
+    }
+
+    private void ClearPathVisual()
+    {
+        foreach (var tile in currentHoverPath)
+        {
+            tile.SetSprite(ArrowTranslator.ArrowDirection.None);
+        }
+        currentHoverPath.Clear();
+    }
+
+    private void Update()
+    {
+        if (plannerMode != PlannerMode.Move || !TurnSystem.Instance.IsPlanningPhase())
+            return;
+
+        BaseUnit unit = currentUnit ?? UnitSelector.currentUnit;
+        if (unit == null) return;
+
+        OverlayTile tileUnderMouse = GetTileUnderMouse();
+        if (tileUnderMouse == null) return;
+
+        if (currentRangeTiles.Contains(tileUnderMouse))
+        {
+            var path = pathFinder.FindPath(unit.standOnTile, tileUnderMouse, currentRangeTiles);
+
+            if (!Enumerable.SequenceEqual(path, currentHoverPath))
+            {
+                ClearPathVisual();
+
+                for (int i = 0; i < path.Count; i++)
+                {
+                    var previous = i > 0 ? path[i - 1] : unit.standOnTile;
+                    var next = i < path.Count - 1 ? path[i + 1] : null;
+                    var direction = arrowTranslator.TranslateDirection(previous, path[i], next);
+                    path[i].SetSprite(direction);
+                }
+
+                currentHoverPath = path;
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                Debug.Log($"[Planner] Move confirmed. Path tiles: {path.Count}");
+
+                unit.plannedPath = path;
+
+                ClearPreviousRangeTiles();
+                ClearPathVisual();
+                plannerMode = PlannerMode.None;
+            }
+        }
+    }
+
+    private OverlayTile GetTileUnderMouse()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+
+        RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
+        if (hit.collider != null)
+        {
+            return hit.collider.GetComponent<OverlayTile>();
+        }
+
+        return null;
     }
 }

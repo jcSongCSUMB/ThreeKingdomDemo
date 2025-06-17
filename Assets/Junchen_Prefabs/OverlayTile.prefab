@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6858084276846562322}
   - component: {fileID: 9192923022027356150}
   - component: {fileID: 9087250328834290890}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: OverlayTile
   m_TagString: OverlayTile
   m_Icon: {fileID: 0}
@@ -121,6 +121,8 @@ MonoBehaviour:
   - {fileID: 1422338911, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
   - {fileID: 1329891261, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
   - {fileID: 382966541, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
+  isPlayerDeployZone: 0
+  isEnemyDeployZone: 0
 --- !u!60 &9087250328834290890
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -182,7 +184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6317183892710039911}
   - component: {fileID: 5525036889103017603}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DirectionalArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
