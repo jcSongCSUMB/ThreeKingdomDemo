@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 public class UnitSelector : MonoBehaviour
 {
@@ -27,6 +28,15 @@ public class UnitSelector : MonoBehaviour
         if (!TurnSystem.Instance.IsPlanningPhase())
             return;
 
+        // Prevent interference if mouse is over UI element
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
+
+        // Prevent unit selection while in planner mode
+        TileClickPathPlanner planner = FindObjectOfType<TileClickPathPlanner>();
+        if (planner != null && planner.plannerMode != PlannerMode.None)
+            return;
+
         // Check for left mouse click
         if (Input.GetMouseButtonDown(0))
         {
@@ -47,10 +57,15 @@ public class UnitSelector : MonoBehaviour
                         .FirstOrDefault(u => u.standOnTile == tile && u.teamType == UnitTeam.Player && !u.hasFinishedAction);
 
                     PlannerActionPanelController panel = FindObjectOfType<PlannerActionPanelController>();
-                    TileClickPathPlanner planner = FindObjectOfType<TileClickPathPlanner>();
 
                     if (unit != null)
                     {
+                        // Reset planner state when switching unit
+                        if (planner != null)
+                        {
+                            planner.SetPlannerMode(PlannerMode.None);
+                        }
+
                         currentUnit = unit;
                         Debug.Log($"[Selector] Unit selected: {unit.name} at tile {tile.grid2DLocation}");
 

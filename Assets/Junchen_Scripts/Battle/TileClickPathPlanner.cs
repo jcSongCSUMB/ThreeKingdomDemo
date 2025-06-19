@@ -98,6 +98,7 @@ public class TileClickPathPlanner : MonoBehaviour
 
     private void Update()
     {
+        // Only operate in Move planning mode
         if (plannerMode != PlannerMode.Move || !TurnSystem.Instance.IsPlanningPhase())
             return;
 
@@ -107,10 +108,12 @@ public class TileClickPathPlanner : MonoBehaviour
         OverlayTile tileUnderMouse = GetTileUnderMouse();
         if (tileUnderMouse == null) return;
 
+        // Check tile is within reachable range
         if (currentRangeTiles.Contains(tileUnderMouse))
         {
             var path = pathFinder.FindPath(unit.standOnTile, tileUnderMouse, currentRangeTiles);
 
+            // Refresh path arrows if the path has changed
             if (!Enumerable.SequenceEqual(path, currentHoverPath))
             {
                 ClearPathVisual();
@@ -126,16 +129,7 @@ public class TileClickPathPlanner : MonoBehaviour
                 currentHoverPath = path;
             }
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                Debug.Log($"[Planner] Move confirmed. Path tiles: {path.Count}");
-
-                unit.plannedPath = path;
-
-                ClearPreviousRangeTiles();
-                ClearPathVisual();
-                plannerMode = PlannerMode.None;
-            }
+            // the mechanics of mouse click to confirm path is transferred to path planner
         }
     }
 
