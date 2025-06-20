@@ -10,27 +10,17 @@ public enum TurnPhase
 
 public class TurnSystem : MonoBehaviour
 {
-    // Singleton instance
     public static TurnSystem Instance;
 
-    // Flag to indicate battle phase has started
     public bool battleStarted = false;
-
-    // Current phase of the turn
     public TurnPhase currentPhase = TurnPhase.PlayerPlanning;
-
-    // Current turn number
     public int currentTurn = 1;
 
-    // List of all units in the battle
     private List<BaseUnit> allUnits = new List<BaseUnit>();
-
-    // Index used to track execution order
     private int executingIndex = 0;
 
     private void Awake()
     {
-        // Ensure only one instance of TurnSystem exists
         if (Instance == null)
         {
             Instance = this;
@@ -41,7 +31,7 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Add a unit to the list if not already present
+    // Register a unit if not already in the unit list
     public void RegisterUnit(BaseUnit unit)
     {
         if (!allUnits.Contains(unit))
@@ -50,7 +40,7 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Move to the next phase in the turn cycle
+    // Transition to the next phase of the turn cycle
     public void NextPhase()
     {
         switch (currentPhase)
@@ -58,29 +48,35 @@ public class TurnSystem : MonoBehaviour
             case TurnPhase.PlayerPlanning:
                 currentPhase = TurnPhase.PlayerExecuting;
                 ResetUnitStates(UnitTeam.Player);
-                executingIndex = 0;
 
                 // TODO: Execute all planned actions by player units
+                executingIndex = 0;
                 break;
 
             case TurnPhase.PlayerExecuting:
                 currentPhase = TurnPhase.EnemyTurn;
 
-                // TODO: Trigger AI logic for enemy turn
+                // TODO: Trigger enemy AI logic
                 break;
 
             case TurnPhase.EnemyTurn:
                 currentPhase = TurnPhase.PlayerPlanning;
                 currentTurn++;
 
-                // TODO: Reset board and allow new planning
+                // Clear path and action plans for all player units
+                ClearAllPlayerPlans();
+
+                // Clear all tiles temporarily blocked by previous plans
+                ClearAllTempBlockedTiles();
+
+                // TODO: Reset planning environment for next turn
                 break;
         }
 
         Debug.Log($"Turn Phase changed to: {currentPhase}");
     }
 
-    // Reset action status of all units on a team
+    // Reset action status for all units belonging to the given team
     private void ResetUnitStates(UnitTeam team)
     {
         foreach (BaseUnit unit in allUnits)
@@ -92,9 +88,37 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Check if it's currently the player planning phase
+    // Returns true if the current phase is PlayerPlanning
     public bool IsPlanningPhase()
     {
         return currentPhase == TurnPhase.PlayerPlanning;
+    }
+
+    // Clear all saved plans (movement, action, target) for player units
+    private void ClearAllPlayerPlans()
+    {
+        foreach (BaseUnit unit in allUnits)
+        {
+            if (unit.teamType == UnitTeam.Player)
+            {
+                unit.plannedPath.Clear();
+                unit.plannedAction = PlannedAction.None;
+                unit.targetUnit = null;
+            }
+        }
+    }
+
+    // Reset all temporarily blocked tiles and restore their default appearance
+    private void ClearAllTempBlockedTiles()
+    {
+        OverlayTile[] allTiles = FindObjectsOfType<OverlayTile>();
+        foreach (OverlayTile tile in allTiles)
+        {
+            if (tile.tempBlockedByPlanning)
+            {
+                tile.tempBlockedByPlanning = false;
+                tile.SetToDefaultSprite();
+            }
+        }
     }
 }

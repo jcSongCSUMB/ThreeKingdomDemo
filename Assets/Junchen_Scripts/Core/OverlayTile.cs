@@ -9,7 +9,9 @@ public class OverlayTile : MonoBehaviour
     public int H;
     public int F { get { return G + H; } }
 
-    public bool isBlocked = false;  // Whether this tile is occupied by a unit
+    public bool isBlocked = false;      // Permanent block (deployment)
+    public bool isTempBlocked = false;  // Temporary block during planning
+    public bool tempBlockedByPlanning = false; // Used by TurnSystem to clean up
 
     public OverlayTile Previous;
     public Vector3Int gridLocation;
@@ -17,9 +19,16 @@ public class OverlayTile : MonoBehaviour
 
     public List<Sprite> arrows;
 
-    // Flags indicating which deploy zone this tile belongs to
     public bool isPlayerDeployZone = false;
     public bool isEnemyDeployZone = false;
+
+    public Sprite tempBlockedSprite; // Assigned in inspector
+    private Sprite defaultSprite;    // Backed-up default sprite
+
+    private void Start()
+    {
+        defaultSprite = GetComponent<SpriteRenderer>().sprite;
+    }
 
     private void Update()
     {
@@ -29,40 +38,79 @@ public class OverlayTile : MonoBehaviour
         }
     }
 
-    // Hides the tile's main sprite (alpha = 0)
+    // Make tile invisible
     public void HideTile()
     {
-        gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
+        GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
     }
 
-    // Shows the tile's main sprite (alpha = 1)
+    // Make tile visible with full alpha
     public void ShowTile()
     {
-        gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+        GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
     }
 
-    // Controls the optional directional arrow sprite display
-    public void SetSprite(ArrowDirection d)
+    // Show red tile by switching sprite (for planning block)
+    public void ShowAsTempBlocked()
     {
-        if (d == ArrowDirection.None)
-            GetComponentsInChildren<SpriteRenderer>()[1].color = new Color(1, 1, 1, 0);
-        else
+        if (tempBlockedSprite != null)
         {
-            GetComponentsInChildren<SpriteRenderer>()[1].color = new Color(1, 1, 1, 1);
-            GetComponentsInChildren<SpriteRenderer>()[1].sprite = arrows[(int)d];
-            GetComponentsInChildren<SpriteRenderer>()[1].sortingOrder = gameObject.GetComponent<SpriteRenderer>().sortingOrder;
+            GetComponent<SpriteRenderer>().sprite = tempBlockedSprite;
+            tempBlockedByPlanning = true;
         }
     }
 
-    // Marks this tile as occupied (unit is deployed here)
+    // Reset sprite to original and clear visual overlay
+    public void UnmarkTempBlocked()
+    {
+        isTempBlocked = false;
+        tempBlockedByPlanning = false;
+        GetComponent<SpriteRenderer>().sprite = defaultSprite;
+        HideTile(); // Optional: you can replace with ShowTile() if needed
+    }
+
+    // Restore default appearance (used by TurnSystem)
+    public void SetToDefaultSprite()
+    {
+        GetComponent<SpriteRenderer>().sprite = defaultSprite;
+    }
+
+    // Clear arrows (for hover preview)
+    public void SetSprite(ArrowDirection d)
+    {
+        var arrowRenderer = GetComponentsInChildren<SpriteRenderer>()[1];
+
+        if (d == ArrowDirection.None)
+        {
+            arrowRenderer.color = new Color(1, 1, 1, 0);
+        }
+        else
+        {
+            arrowRenderer.color = new Color(1, 1, 1, 1);
+            arrowRenderer.sprite = arrows[(int)d];
+            arrowRenderer.sortingOrder = GetComponent<SpriteRenderer>().sortingOrder;
+        }
+    }
+
     public void MarkAsBlocked()
     {
         isBlocked = true;
     }
 
-    // Unmarks this tile (e.g., after unit is removed)
     public void Unblock()
     {
         isBlocked = false;
+    }
+
+    public void MarkAsTempBlocked()
+    {
+        isTempBlocked = true;
+        ShowAsTempBlocked();
+    }
+
+    public void ClearVisualState()
+    {
+        HideTile();
+        SetSprite(ArrowDirection.None);
     }
 }

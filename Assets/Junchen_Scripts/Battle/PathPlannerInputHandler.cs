@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Linq;
 
-/// <summary>
-/// Handles input during planner mode (e.g., Move).
-/// Interacts with TileClickPathPlanner to confirm tile selection.
-/// </summary>
 public class PathPlannerInputHandler : MonoBehaviour
 {
     private TileClickPathPlanner planner;
@@ -49,15 +46,17 @@ public class PathPlannerInputHandler : MonoBehaviour
                 return;
             }
 
+            // Prevent selecting a tile that has already been claimed by another unit
+            if (clickedTile.isTempBlocked)
+            {
+                Debug.Log($"[InputHandler] Tile {clickedTile.grid2DLocation} is already claimed by another unit.");
+                return;
+            }
+
             ConfirmTileSelection(clickedTile);
         }
     }
 
-    /// <summary>
-    /// Raycast to detect hovered OverlayTile under the mouse cursor.
-    /// Uses Physics2D to match 2D Collider setup.
-    /// </summary>
-    /// <returns>Hovered OverlayTile or null</returns>
     private OverlayTile GetHoveredTile()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -71,35 +70,37 @@ public class PathPlannerInputHandler : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// Handle logic when player confirms a tile during Move planning.
-    /// </summary>
-    /// <param name="targetTile">The selected destination tile</param>
-    private void ConfirmTileSelection(OverlayTile targetTile)
+    private void ConfirmTileSelection(OverlayTile clickedTile)
     {
         BaseUnit unit = UnitSelector.currentUnit;
         if (unit == null || unit.standOnTile == null) return;
 
-        // Use local PathFinder to get final path
-        List<OverlayTile> path = pathFinder.FindPath(unit.standOnTile, targetTile, planner.HighlightedTiles);
+        List<OverlayTile> path = pathFinder.FindPath(unit.standOnTile, clickedTile, planner.HighlightedTiles);
         if (path == null || path.Count == 0) return;
 
-        // Set the plan into the unit
+        // 🔁 New: unmark previously blocked tile if any
+        if (unit.plannedPath != null && unit.plannedPath.Count > 0)
+        {
+            OverlayTile previousTile = unit.plannedPath.Last();
+            previousTile.UnmarkTempBlocked();
+        }
+
         unit.plannedPath = path;
 
-        // Hide highlight and arrow
+        OverlayTile destinationTile = path[path.Count - 1];
+        destinationTile.MarkAsTempBlocked();
+        Debug.Log($"[Planner] Tile {destinationTile.grid2DLocation} temporarily blocked for this unit.");
+
         planner.ClearAllHighlights();
 
-        Debug.Log($"[Planner] Move planned for {unit.name} to tile {targetTile.gridLocation}");
+        Debug.Log($"[Planner] Move planned for {unit.name} to tile {destinationTile.gridLocation}");
 
-        // Hide action panel after planning
         PlannerActionPanelController panel = FindObjectOfType<PlannerActionPanelController>();
         if (panel != null)
         {
             panel.Hide();
         }
 
-        // Exit planner mode
         planner.SetPlannerMode(PlannerMode.None);
     }
 }

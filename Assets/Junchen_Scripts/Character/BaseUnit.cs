@@ -30,4 +30,27 @@ public class BaseUnit : MonoBehaviour
 
     // The team this unit belongs to (Player or Enemy)
     public UnitTeam teamType;
+
+    // === [New fields for combat and planning] ===
+
+    // Current HP of the unit
+    public int health = 100;
+
+    // Max HP of the unit
+    public int maxHealth = 100;
+
+    // Unit's base attack power
+    public int attackPower = 30;
+
+    // Unit's base defense power
+    public int defensePower = 10;
+
+    // Unit's action points (used for movement and attacks)
+    public int actionPoints = 3;
+
+    // Unit type string (e.g., "Infantry", "Archer")
+    public string unitType = "Infantry";
+
+    // Attack target (set in attack planning)
+    public BaseUnit targetUnit;
 }

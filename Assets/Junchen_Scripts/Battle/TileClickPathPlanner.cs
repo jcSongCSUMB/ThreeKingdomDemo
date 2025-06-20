@@ -12,29 +12,37 @@ public enum PlannerMode
 
 public class TileClickPathPlanner : MonoBehaviour
 {
+    // Current planner mode (Move, Attack, Defend, or None)
     public PlannerMode plannerMode = PlannerMode.None;
 
-    private List<OverlayTile> currentRangeTiles = new List<OverlayTile>();       // to highlight the tiles within unit's range
-    private List<OverlayTile> currentHoverPath = new List<OverlayTile>();        // to show the path after calculation
+    // Tiles currently in range and eligible for selection
+    private List<OverlayTile> currentRangeTiles = new List<OverlayTile>();
 
+    // Path preview shown when hovering over a tile
+    private List<OverlayTile> currentHoverPath = new List<OverlayTile>();
+
+    // Helper classes for tile range, path, and arrow direction
     private RangeFinder rangeFinder = new RangeFinder();
     private PathFinder pathFinder = new PathFinder();
     private ArrowTranslator arrowTranslator = new ArrowTranslator();
 
-    private BaseUnit currentUnit;    // Reference passed from PathPlannerInputHandler
+    // Currently selected unit (can be set manually)
+    private BaseUnit currentUnit;
 
-    // Public getter for external access to range tiles
+    // Public accessor for highlighted tiles
     public List<OverlayTile> HighlightedTiles => currentRangeTiles;
 
-    // Clears both tile highlights and path arrows
+    // Clears both the highlighted tiles and hover path arrows
     public void ClearAllHighlights()
     {
         ClearPreviousRangeTiles();
         ClearPathVisual();
     }
 
+    // Sets the current planner mode and highlights tiles accordingly
     public void SetPlannerMode(PlannerMode mode)
     {
+        // Only allow planner mode during the player's planning phase
         if (!TurnSystem.Instance.IsPlanningPhase())
         {
             Debug.Log("[Planner] Cannot set mode, not in planning phase");
@@ -48,27 +56,30 @@ public class TileClickPathPlanner : MonoBehaviour
             return;
         }
 
+        // Clear previous highlights and arrows
         ClearPreviousRangeTiles();
         ClearPathVisual();
 
         plannerMode = mode;
         Debug.Log($"[Planner] Mode set to: {plannerMode}");
 
-        if (plannerMode == PlannerMode.Move)
+        // Show range for Move and Attack modes
+        if (plannerMode == PlannerMode.Move || plannerMode == PlannerMode.Attack)
         {
             ShowMovementRange(unit);
         }
     }
 
+    // Allows external systems to assign the current unit
     public void SetCurrentUnit(BaseUnit unit)
     {
         currentUnit = unit;
     }
 
+    // Highlights all tiles reachable based on unit's action points and current planner mode
     private void ShowMovementRange(BaseUnit unit)
     {
-        Vector2Int unitPos = unit.standOnTile.grid2DLocation;
-        currentRangeTiles = rangeFinder.GetTilesInRange(unitPos, 3);
+        currentRangeTiles = rangeFinder.GetTilesInRange(unit, plannerMode);
 
         foreach (var tile in currentRangeTiles)
         {
@@ -78,6 +89,7 @@ public class TileClickPathPlanner : MonoBehaviour
         Debug.Log($"[Planner] Showing movement range tiles: {currentRangeTiles.Count}");
     }
 
+    // Hides all previously highlighted tiles
     private void ClearPreviousRangeTiles()
     {
         foreach (var tile in currentRangeTiles)
@@ -87,6 +99,7 @@ public class TileClickPathPlanner : MonoBehaviour
         currentRangeTiles.Clear();
     }
 
+    // Clears any path arrow sprites shown for hover preview
     private void ClearPathVisual()
     {
         foreach (var tile in currentHoverPath)
@@ -96,9 +109,10 @@ public class TileClickPathPlanner : MonoBehaviour
         currentHoverPath.Clear();
     }
 
+    // Handles live path preview updates while in Move mode
     private void Update()
     {
-        // Only operate in Move planning mode
+        // Only respond to mouse hover in Move mode during PlayerPlanning phase
         if (plannerMode != PlannerMode.Move || !TurnSystem.Instance.IsPlanningPhase())
             return;
 
@@ -108,12 +122,12 @@ public class TileClickPathPlanner : MonoBehaviour
         OverlayTile tileUnderMouse = GetTileUnderMouse();
         if (tileUnderMouse == null) return;
 
-        // Check tile is within reachable range
+        // Check if hovered tile is in movement range
         if (currentRangeTiles.Contains(tileUnderMouse))
         {
             var path = pathFinder.FindPath(unit.standOnTile, tileUnderMouse, currentRangeTiles);
 
-            // Refresh path arrows if the path has changed
+            // Only update visuals if path is different from last
             if (!Enumerable.SequenceEqual(path, currentHoverPath))
             {
                 ClearPathVisual();
@@ -128,11 +142,10 @@ public class TileClickPathPlanner : MonoBehaviour
 
                 currentHoverPath = path;
             }
-
-            // the mechanics of mouse click to confirm path is transferred to path planner
         }
     }
 
+    // Performs a raycast to get the tile currently under the mouse
     private OverlayTile GetTileUnderMouse()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
