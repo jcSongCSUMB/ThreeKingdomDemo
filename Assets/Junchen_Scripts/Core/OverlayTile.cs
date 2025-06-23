@@ -5,25 +5,30 @@ using static ArrowTranslator;
 
 public class OverlayTile : MonoBehaviour
 {
+    // Pathfinding cost
     public int G;
     public int H;
     public int F { get { return G + H; } }
 
-    public bool isBlocked = false;      // Permanent block (deployment)
-    public bool isTempBlocked = false;  // Temporary block during planning
-    public bool tempBlockedByPlanning = false; // Used by TurnSystem to clean up
+    // Tile status flags
+    public bool isBlocked = false;             // Permanent block (e.g., terrain)
+    public bool isTempBlocked = false;         // Temporary block during planning
+    public bool tempBlockedByPlanning = false; // Used to track tiles for temp cleanup
+    public bool isBlockedThisTurn = false;     // Blocked for the full turn (e.g., enemy tile or planned target)
 
+    // Grid location
     public OverlayTile Previous;
     public Vector3Int gridLocation;
     public Vector2Int grid2DLocation { get { return new Vector2Int(gridLocation.x, gridLocation.y); } }
 
-    public List<Sprite> arrows;
-
+    // Deployment info
     public bool isPlayerDeployZone = false;
     public bool isEnemyDeployZone = false;
 
-    public Sprite tempBlockedSprite; // Assigned in inspector
-    private Sprite defaultSprite;    // Backed-up default sprite
+    // Sprite visuals
+    public List<Sprite> arrows;
+    public Sprite tempBlockedSprite;   // Assigned in inspector
+    private Sprite defaultSprite;      // Sprite to restore
 
     private void Start()
     {
@@ -32,65 +37,49 @@ public class OverlayTile : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        // Update tile visuals each frame based on blocked state
+        if (isBlockedThisTurn || isTempBlocked)
         {
-            HideTile();
+            ShowAsTempBlocked();
+        }
+        else if (!tempBlockedByPlanning)
+        {
+            SetToDefaultSprite();
         }
     }
 
-    // Make tile invisible
-    public void HideTile()
-    {
-        GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
-    }
+    // === Visual Helpers ===
 
-    // Make tile visible with full alpha
-    public void ShowTile()
-    {
-        GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
-    }
-
-    // Show red tile by switching sprite (for planning block)
     public void ShowAsTempBlocked()
     {
         if (tempBlockedSprite != null)
         {
             GetComponent<SpriteRenderer>().sprite = tempBlockedSprite;
-            tempBlockedByPlanning = true;
         }
     }
 
-    // Reset sprite to original and clear visual overlay
-    public void UnmarkTempBlocked()
-    {
-        isTempBlocked = false;
-        tempBlockedByPlanning = false;
-        GetComponent<SpriteRenderer>().sprite = defaultSprite;
-        HideTile(); // Optional: you can replace with ShowTile() if needed
-    }
-
-    // Restore default appearance (used by TurnSystem)
     public void SetToDefaultSprite()
     {
         GetComponent<SpriteRenderer>().sprite = defaultSprite;
     }
 
-    // Clear arrows (for hover preview)
-    public void SetSprite(ArrowDirection d)
+    public void HideTile()
     {
-        var arrowRenderer = GetComponentsInChildren<SpriteRenderer>()[1];
-
-        if (d == ArrowDirection.None)
-        {
-            arrowRenderer.color = new Color(1, 1, 1, 0);
-        }
-        else
-        {
-            arrowRenderer.color = new Color(1, 1, 1, 1);
-            arrowRenderer.sprite = arrows[(int)d];
-            arrowRenderer.sortingOrder = GetComponent<SpriteRenderer>().sortingOrder;
-        }
+        GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
     }
+
+    public void ShowTile()
+    {
+        GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+    }
+
+    public void ClearVisualState()
+    {
+        HideTile();
+        SetSprite(ArrowDirection.None);
+    }
+
+    // === Block Status Markers ===
 
     public void MarkAsBlocked()
     {
@@ -105,12 +94,48 @@ public class OverlayTile : MonoBehaviour
     public void MarkAsTempBlocked()
     {
         isTempBlocked = true;
+        tempBlockedByPlanning = true;
         ShowAsTempBlocked();
     }
 
-    public void ClearVisualState()
+    public void UnmarkTempBlocked()
     {
-        HideTile();
-        SetSprite(ArrowDirection.None);
+        isTempBlocked = false;
+        tempBlockedByPlanning = false;
+        SetToDefaultSprite();
+        HideTile(); // Optional based on game state
+    }
+
+    public void MarkAsTurnBlocked()
+    {
+        isBlockedThisTurn = true;
+        ShowAsTempBlocked();
+    }
+
+    public void UnmarkTurnBlocked()
+    {
+        isBlockedThisTurn = false;
+        if (!tempBlockedByPlanning)
+        {
+            SetToDefaultSprite();
+        }
+    }
+
+    // === Arrow Drawing ===
+
+    public void SetSprite(ArrowDirection d)
+    {
+        var arrowRenderer = GetComponentsInChildren<SpriteRenderer>()[1];
+
+        if (d == ArrowDirection.None)
+        {
+            arrowRenderer.color = new Color(1, 1, 1, 0);
+        }
+        else
+        {
+            arrowRenderer.color = new Color(1, 1, 1, 1);
+            arrowRenderer.sprite = arrows[(int)d];
+            arrowRenderer.sortingOrder = GetComponent<SpriteRenderer>().sortingOrder;
+        }
     }
 }

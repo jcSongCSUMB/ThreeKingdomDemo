@@ -37,6 +37,13 @@ public class TileClickPathPlanner : MonoBehaviour
     {
         ClearPreviousRangeTiles();
         ClearPathVisual();
+
+        // 🆕 Clear turn-blocked flag from current unit's destination tile
+        if (UnitSelector.currentUnit != null && UnitSelector.currentUnit.plannedPath != null && UnitSelector.currentUnit.plannedPath.Count > 0)
+        {
+            OverlayTile lastTile = UnitSelector.currentUnit.plannedPath.Last();
+            lastTile.UnmarkTurnBlocked();  // 🔁 Clear turn-block flag
+        }
     }
 
     // Sets the current planner mode and highlights tiles accordingly

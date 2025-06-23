@@ -78,17 +78,24 @@ public class PathPlannerInputHandler : MonoBehaviour
         List<OverlayTile> path = pathFinder.FindPath(unit.standOnTile, clickedTile, planner.HighlightedTiles);
         if (path == null || path.Count == 0) return;
 
-        // 🔁 New: unmark previously blocked tile if any
+        // unmark previously blocked tile if any
         if (unit.plannedPath != null && unit.plannedPath.Count > 0)
         {
             OverlayTile previousTile = unit.plannedPath.Last();
             previousTile.UnmarkTempBlocked();
+
+            // remove turn-blocked flag
+            previousTile.UnmarkTurnBlocked();
         }
 
         unit.plannedPath = path;
 
         OverlayTile destinationTile = path[path.Count - 1];
         destinationTile.MarkAsTempBlocked();
+
+        // also mark as turn-blocked
+        destinationTile.MarkAsTurnBlocked();
+
         Debug.Log($"[Planner] Tile {destinationTile.grid2DLocation} temporarily blocked for this unit.");
 
         planner.ClearAllHighlights();

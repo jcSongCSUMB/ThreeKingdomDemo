@@ -31,6 +31,12 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        // Ensure enemy tiles are marked as turn-blocked at the very first PlayerPlanning phase
+        MarkEnemyTilesAsTurnBlocked();
+    }
+
     // Register a unit if not already in the unit list
     public void RegisterUnit(BaseUnit unit)
     {
@@ -68,6 +74,12 @@ public class TurnSystem : MonoBehaviour
 
                 // Clear all tiles temporarily blocked by previous plans
                 ClearAllTempBlockedTiles();
+
+                // Clear all tiles marked as turn-blocked (end of full turn)
+                ClearAllTurnBlockedTiles();
+
+                // Start of new full turn: mark enemy tiles as turn-blocked
+                MarkEnemyTilesAsTurnBlocked();
 
                 // TODO: Reset planning environment for next turn
                 break;
@@ -119,6 +131,42 @@ public class TurnSystem : MonoBehaviour
                 tile.tempBlockedByPlanning = false;
                 tile.SetToDefaultSprite();
             }
+        }
+    }
+
+    // Mark all tiles occupied by enemy units as temporarily blocked
+    private void MarkEnemyTilesAsBlocked()
+    {
+        foreach (BaseUnit unit in allUnits)
+        {
+            if (unit.teamType == UnitTeam.Enemy && unit.standOnTile != null)
+            {
+                unit.standOnTile.isTempBlocked = true;
+                unit.standOnTile.tempBlockedByPlanning = true;
+                unit.standOnTile.ShowAsTempBlocked();
+            }
+        }
+    }
+
+    // Mark all tiles occupied by enemy units as turn-blocked
+    private void MarkEnemyTilesAsTurnBlocked()
+    {
+        foreach (BaseUnit unit in allUnits)
+        {
+            if (unit.teamType == UnitTeam.Enemy && unit.standOnTile != null)
+            {
+                unit.standOnTile.MarkAsTurnBlocked();
+            }
+        }
+    }
+
+    // Clear all turn-blocked flags on all tiles at the start of each full turn
+    private void ClearAllTurnBlockedTiles()
+    {
+        OverlayTile[] allTiles = FindObjectsOfType<OverlayTile>();
+        foreach (OverlayTile tile in allTiles)
+        {
+            tile.UnmarkTurnBlocked();
         }
     }
 }
