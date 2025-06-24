@@ -32,7 +32,7 @@ public class UnitSelector : MonoBehaviour
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
-        // Prevent unit selection while in planner mode
+        // Prevent unit selection while in any planner mode
         TileClickPathPlanner planner = FindObjectOfType<TileClickPathPlanner>();
         if (planner != null && planner.plannerMode != PlannerMode.None)
             return;

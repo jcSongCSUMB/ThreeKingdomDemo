@@ -88,6 +88,38 @@ public class TileClickPathPlanner : MonoBehaviour
     {
         currentRangeTiles = rangeFinder.GetTilesInRange(unit, plannerMode);
 
+        // Special filtering logic for Attack mode
+        if (plannerMode == PlannerMode.Attack)
+        {
+            List<OverlayTile> filtered = new List<OverlayTile>();
+            BaseUnit[] allUnits = FindObjectsOfType<BaseUnit>();
+
+            foreach (OverlayTile tile in currentRangeTiles)
+            {
+                // Check if this tile is adjacent to any enemy unit
+                List<OverlayTile> neighbors = MapManager.Instance.GetSurroundingTilesEightDirections(tile.grid2DLocation);
+                bool hasEnemyNearby = neighbors.Any(n =>
+                    allUnits.Any(u => u.standOnTile == n && u.teamType != unit.teamType));
+
+                if (hasEnemyNearby)
+                {
+                    filtered.Add(tile);
+                }
+            }
+
+            currentRangeTiles = filtered;
+
+            // Highlight only filtered legal tiles
+            foreach (var tile in currentRangeTiles)
+            {
+                tile.ShowTile();  // Red tint if you want to customize this
+            }
+
+            Debug.Log($"[Planner] Showing legal attack prep tiles: {currentRangeTiles.Count}");
+            return;
+        }
+
+        // Default logic for Move and other modes
         foreach (var tile in currentRangeTiles)
         {
             tile.ShowTile();

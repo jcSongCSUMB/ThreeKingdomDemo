@@ -147,6 +147,30 @@ public class MapManager : MonoBehaviour
 
         return surroundingTiles;
     }
+    
+    // the surrounding tile method for attack mode only
+    public List<OverlayTile> GetSurroundingTilesEightDirections(Vector2Int originTile)
+    {
+        var surroundingTiles = new List<OverlayTile>();
+
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                // Skip the center tile
+                if (dx == 0 && dy == 0) continue;
+
+                Vector2Int check = new Vector2Int(originTile.x + dx, originTile.y + dy);
+                if (map.ContainsKey(check))
+                {
+                    if (Mathf.Abs(map[check].transform.position.z - map[originTile].transform.position.z) < 1)
+                        surroundingTiles.Add(map[check]);
+                }
+            }
+        }
+
+        return surroundingTiles;
+    }
 
     // Toggle deploy zone tilemap visibility
     public void ShowDeployZones()
