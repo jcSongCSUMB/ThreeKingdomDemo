@@ -13,6 +13,9 @@ public class BattleUIController : MonoBehaviour
     public Button resetButton;                 // Resets all deployed units and buttons
     public Button startButton;                 // Starts battle phase (UI hide only)
 
+    [Header("Battle Phase Panels")]
+    public GameObject phaseControlPanel;       // The right-side PhaseControlPanel shown after deployment
+
     private void Start()
     {
         // Ensure deploy zone is hidden at the very beginning
@@ -27,6 +30,10 @@ public class BattleUIController : MonoBehaviour
 
         if (startButton != null)
             startButton.onClick.AddListener(OnStartClicked);
+
+        // Ensure the PhaseControlPanel starts hidden
+        if (phaseControlPanel != null)
+            phaseControlPanel.SetActive(false);
     }
 
     // Plays the opening UI animation sequence:
@@ -105,10 +112,18 @@ public class BattleUIController : MonoBehaviour
         // Ensure deploy zone is hidden after transition
         MapManager.Instance.HideDeployZones();
 
+        // Show the battle phase control panel (e.g. NextPhaseButton)
+        if (phaseControlPanel != null)
+        {
+            phaseControlPanel.SetActive(true);
+            Debug.Log("[BattleUI] PhaseControlPanel activated.");
+        }
+
         // Mark the battle as started in TurnSystem
         TurnSystem.Instance.battleStarted = true;
 
-        // Placeholder for actual battle logic
         Debug.Log("[BattleUI] Start clicked. Transition to battle phase.");
+
+        // TODO: Add any additional setup for entering the battle phase here
     }
 }
