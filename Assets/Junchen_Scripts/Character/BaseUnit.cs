@@ -45,6 +45,9 @@ public class BaseUnit : MonoBehaviour
     // Unit's base defense power
     public int defensePower = 10;
 
+    // Temporary defense bonus from Defend action
+    public int tempDefenseBonus = 0;
+
     // Unit's action points (used for movement and attacks)
     public int actionPoints = 3;
 

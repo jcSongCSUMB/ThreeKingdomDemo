@@ -70,4 +70,19 @@ public class UnitDeployManager : MonoBehaviour
         deployedUnits.Clear();
         Debug.Log("[DeployManager] All deployed units cleared.");
     }
+    
+    // Return all currently deployed player units
+    public List<BaseUnit> GetAllDeployedPlayerUnits()
+    {
+        List<BaseUnit> playerUnits = new List<BaseUnit>();
+        foreach (var unit in deployedUnits)
+        {
+            BaseUnit baseUnit = unit.GetComponent<BaseUnit>();
+            if (baseUnit != null && baseUnit.teamType == UnitTeam.Player)
+            {
+                playerUnits.Add(baseUnit);
+            }
+        }
+        return playerUnits;
+    }
 }

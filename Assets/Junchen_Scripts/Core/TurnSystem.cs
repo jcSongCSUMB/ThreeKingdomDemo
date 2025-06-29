@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -55,8 +56,12 @@ public class TurnSystem : MonoBehaviour
                 currentPhase = TurnPhase.PlayerExecuting;
                 ResetUnitStates(UnitTeam.Player);
 
-                // TODO: Execute all planned actions by player units
-                executingIndex = 0;
+                // Refresh the list of all player units from UnitDeployManager
+                allUnits = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
+                Debug.Log($"[TurnSystem] Updated allUnits list. Count: {allUnits.Count}");
+
+                // Start player execution as Coroutine
+                StartPlayerExecutionPhase();
                 break;
 
             case TurnPhase.PlayerExecuting:
@@ -72,6 +77,9 @@ public class TurnSystem : MonoBehaviour
                 // Clear path and action plans for all player units
                 ClearAllPlayerPlans();
 
+                // Remove any temporary defense bonuses applied during previous turn
+                RemoveAllTemporaryDefenseBonuses();
+
                 // Clear all tiles temporarily blocked by previous plans
                 ClearAllTempBlockedTiles();
 
@@ -85,7 +93,14 @@ public class TurnSystem : MonoBehaviour
                 break;
         }
 
-        Debug.Log($"Turn Phase changed to: {currentPhase}");
+        Debug.Log($"[TurnSystem] Turn Phase changed to: {currentPhase}");
+    }
+
+    // Start the Coroutine to execute player unit actions
+    private void StartPlayerExecutionPhase()
+    {
+        Debug.Log("[TurnSystem] Starting PlayerExecutionPhase Coroutine");
+        StartCoroutine(PlayerExecutor.Execute(allUnits));
     }
 
     // Reset action status for all units belonging to the given team
@@ -116,6 +131,20 @@ public class TurnSystem : MonoBehaviour
                 unit.plannedPath.Clear();
                 unit.plannedAction = PlannedAction.None;
                 unit.targetUnit = null;
+            }
+        }
+    }
+
+    // Remove temporary defense bonuses at the end of the enemy turn
+    private void RemoveAllTemporaryDefenseBonuses()
+    {
+        foreach (BaseUnit unit in allUnits)
+        {
+            if (unit.teamType == UnitTeam.Player && unit.tempDefenseBonus > 0)
+            {
+                unit.defensePower -= unit.tempDefenseBonus;
+                Debug.Log($"[TurnSystem] Removed defense bonus for {unit.name}. New defensePower: {unit.defensePower}");
+                unit.tempDefenseBonus = 0;
             }
         }
     }

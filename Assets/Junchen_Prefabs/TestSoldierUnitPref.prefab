@@ -106,3 +106,11 @@ MonoBehaviour:
   plannedAction: 0
   hasFinishedAction: 0
   teamType: 0
+  health: 100
+  maxHealth: 100
+  attackPower: 30
+  defensePower: 10
+  tempDefenseBonus: 5
+  actionPoints: 3
+  unitType: Infantry
+  targetUnit: {fileID: 0}
