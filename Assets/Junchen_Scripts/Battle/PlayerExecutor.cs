@@ -54,6 +54,9 @@ public static class PlayerExecutor
                         unit.targetUnit.health -= damage;
 
                         Debug.Log($"[TurnSystem] {unit.name} attacks {unit.targetUnit.name} for {damage} damage. {unit.targetUnit.name} HP now {unit.targetUnit.health}.");
+
+                        // NEW: Update the target's health bar
+                        unit.targetUnit.UpdateHealthBar();
                     }
                     else
                     {

@@ -16,44 +16,73 @@ public enum UnitTeam
 
 public class BaseUnit : MonoBehaviour
 {
-    // The tile this unit is currently standing on
+    // === Movement and Action Planning ===
+
     public OverlayTile standOnTile;
-
-    // The planned movement path for this unit
     public List<OverlayTile> plannedPath = new List<OverlayTile>();
-
-    // The intended action this unit will perform after moving
     public PlannedAction plannedAction = PlannedAction.None;
-
-    // Whether this unit has finished its action this round
     public bool hasFinishedAction = false;
-
-    // The team this unit belongs to (Player or Enemy)
     public UnitTeam teamType;
 
-    // === [New fields for combat and planning] ===
+    // === Combat Stats ===
 
-    // Current HP of the unit
     public int health = 100;
-
-    // Max HP of the unit
     public int maxHealth = 100;
-
-    // Unit's base attack power
     public int attackPower = 30;
-
-    // Unit's base defense power
     public int defensePower = 10;
-
-    // Temporary defense bonus from Defend action
     public int tempDefenseBonus = 0;
-
-    // Unit's action points (used for movement and attacks)
     public int actionPoints = 3;
-
-    // Unit type string (e.g., "Infantry", "Archer")
     public string unitType = "Infantry";
-
-    // Attack target (set in attack planning)
     public BaseUnit targetUnit;
+
+    // === Health Bar UI ===
+
+    [Header("Health Bar Settings")]
+    public GameObject healthBarPrefab;
+    private GameObject healthBarInstance;
+    private Transform foregroundBar;
+
+    private Vector3 healthBarOffset = new Vector3(0, 0.5f, 0);
+
+    // === Health Bar Size Cache ===
+    private float healthBarMaxWidth = 1f;  // Default value
+
+    private void Start()
+    {
+        // Instantiate and attach health bar
+        if (healthBarPrefab != null)
+        {
+            healthBarInstance = Instantiate(healthBarPrefab, transform);
+            healthBarInstance.transform.localPosition = healthBarOffset;
+
+            // Cache the foreground bar transform
+            foregroundBar = healthBarInstance.transform.Find("ForegroundBar");
+
+            // Cache the initial full-width scale
+            if (foregroundBar != null)
+            {
+                healthBarMaxWidth = foregroundBar.localScale.x;
+            }
+        }
+
+        // Register with TurnSystem
+        TurnSystem.Instance.RegisterUnit(this);
+
+        // Initialize health bar display
+        UpdateHealthBar();
+    }
+
+    /// <summary>
+    /// Updates the health bar's foreground based on current health.
+    /// Scales X based on cached full-width scale.
+    /// </summary>
+    public void UpdateHealthBar()
+    {
+        if (foregroundBar == null) return;
+
+        float healthPercent = Mathf.Clamp01((float)health / maxHealth);
+        Vector3 scale = foregroundBar.localScale;
+        scale.x = healthBarMaxWidth * healthPercent;
+        foregroundBar.localScale = scale;
+    }
 }

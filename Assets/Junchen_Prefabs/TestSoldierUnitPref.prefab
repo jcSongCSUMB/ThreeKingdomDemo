@@ -114,3 +114,5 @@ MonoBehaviour:
   actionPoints: 3
   unitType: Infantry
   targetUnit: {fileID: 0}
+  healthBarPrefab: {fileID: 2396983972011149586, guid: 9d82b8817760ef14cae1737077518dd8,
+    type: 3}

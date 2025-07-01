@@ -106,3 +106,13 @@ MonoBehaviour:
   plannedAction: 0
   hasFinishedAction: 0
   teamType: 1
+  health: 100
+  maxHealth: 100
+  attackPower: 30
+  defensePower: 10
+  tempDefenseBonus: 0
+  actionPoints: 3
+  unitType: Infantry
+  targetUnit: {fileID: 0}
+  healthBarPrefab: {fileID: 2396983972011149586, guid: 9d82b8817760ef14cae1737077518dd8,
+    type: 3}
