@@ -23,6 +23,7 @@ public class BaseUnit : MonoBehaviour
     public PlannedAction plannedAction = PlannedAction.None;
     public bool hasFinishedAction = false;
     public UnitTeam teamType;
+    public GameObject visual;
 
     // === Combat Stats ===
 

@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7063894120258231081}
-  - component: {fileID: 97670984303712766}
   - component: {fileID: 2000500509378228147}
   m_Layer: 0
   m_Name: TestEnemyUnitPref
@@ -30,16 +29,79 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2723163543395616459}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &97670984303712766
-SpriteRenderer:
+--- !u!114 &2000500509378228147
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1973806093682546859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4d5a496ec3617145803e06527c59ff5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  standOnTile: {fileID: 9192923022027356150, guid: fb5a0aa8717d1c445b1f00b794cb7b67,
+    type: 3}
+  plannedPath: []
+  plannedAction: 0
+  hasFinishedAction: 0
+  teamType: 1
+  health: 100
+  maxHealth: 100
+  attackPower: 30
+  defensePower: 10
+  tempDefenseBonus: 0
+  actionPoints: 3
+  unitType: Infantry
+  targetUnit: {fileID: 0}
+  healthBarPrefab: {fileID: 2396983972011149586, guid: 9d82b8817760ef14cae1737077518dd8,
+    type: 3}
+--- !u!1 &4121994809526647807
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2723163543395616459}
+  - component: {fileID: 1040058644356537570}
+  - component: {fileID: 7763974185304582976}
+  - component: {fileID: 1641061786861543990}
+  m_Layer: 0
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2723163543395616459
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4121994809526647807}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7063894120258231081}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1040058644356537570
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4121994809526647807}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -88,31 +150,32 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
---- !u!114 &2000500509378228147
+--- !u!114 &7763974185304582976
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1973806093682546859}
+  m_GameObject: {fileID: 4121994809526647807}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4d5a496ec3617145803e06527c59ff5, type: 3}
+  m_Script: {fileID: 11500000, guid: 84f6c3f3990c5e34a822d6c06f0a7034, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  standOnTile: {fileID: 9192923022027356150, guid: fb5a0aa8717d1c445b1f00b794cb7b67,
-    type: 3}
-  plannedPath: []
-  plannedAction: 0
-  hasFinishedAction: 0
-  teamType: 1
-  health: 100
-  maxHealth: 100
-  attackPower: 30
-  defensePower: 10
-  tempDefenseBonus: 0
-  actionPoints: 3
-  unitType: Infantry
-  targetUnit: {fileID: 0}
-  healthBarPrefab: {fileID: 2396983972011149586, guid: 9d82b8817760ef14cae1737077518dd8,
-    type: 3}
+  jumpHeight: 0.3
+  upDuration: 0.3
+  downDuration: 0.15
+--- !u!114 &1641061786861543990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4121994809526647807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb5cbb6e2ceeca446a4cb1156576d41f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  amplitude: 0.05
+  frequency: 1

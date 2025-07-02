@@ -9,7 +9,7 @@ public static class PlayerExecutor
 {
     // Define a constant defense boost value for Defend action
     private const int DEFENSE_BOOST_AMOUNT = 5;
-    private const float MOVE_SPEED = 5f;
+    private const float MOVE_SPEED = 2f;
     private const float TILE_THRESHOLD = 0.01f;
 
     // Main entry point to execute all player units
@@ -50,6 +50,17 @@ public static class PlayerExecutor
                 case PlannedAction.Attack:
                     if (unit.targetUnit != null)
                     {
+                        // NEW: Play the target unit's AttackAnimator if available via visual reference
+                        if (unit.targetUnit.visual != null)
+                        {
+                            var animator = unit.targetUnit.visual.GetComponent<AttackAnimator>();
+                            if (animator != null)
+                            {
+                                Debug.Log($"[PlayerExecutor] Playing AttackAnimator on target: {unit.targetUnit.name}");
+                                yield return TurnSystem.Instance.StartCoroutine(animator.PlayAttackAnimation());
+                            }
+                        }
+
                         int damage = Mathf.Max(unit.attackPower - unit.targetUnit.defensePower, 1);
                         unit.targetUnit.health -= damage;
 
@@ -77,7 +88,7 @@ public static class PlayerExecutor
         Debug.Log("[TurnSystem] === PlayerExecuting phase complete ===");
     }
 
-    // Coroutine to move a unit along its plannedPath smoothly
+    // Move unit along its planned path
     private static IEnumerator MoveUnitAlongPath(BaseUnit unit)
     {
         foreach (OverlayTile tile in unit.plannedPath)
