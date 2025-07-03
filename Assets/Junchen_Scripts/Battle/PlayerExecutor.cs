@@ -50,23 +50,24 @@ public static class PlayerExecutor
                 case PlannedAction.Attack:
                     if (unit.targetUnit != null)
                     {
-                        // NEW: Play the target unit's AttackAnimator if available via visual reference
-                        if (unit.targetUnit.visual != null)
+                        // Play ATTACKER's attack animation (the unit itself, not the target)
+                        if (unit.visual != null)
                         {
-                            var animator = unit.targetUnit.visual.GetComponent<AttackAnimator>();
+                            var animator = unit.visual.GetComponent<AttackAnimator>();
                             if (animator != null)
                             {
-                                Debug.Log($"[PlayerExecutor] Playing AttackAnimator on target: {unit.targetUnit.name}");
+                                Debug.Log($"[PlayerExecutor] Playing AttackAnimator on attacker: {unit.name}");
                                 yield return TurnSystem.Instance.StartCoroutine(animator.PlayAttackAnimation());
                             }
                         }
 
+                        // Apply damage calculation
                         int damage = Mathf.Max(unit.attackPower - unit.targetUnit.defensePower, 1);
                         unit.targetUnit.health -= damage;
 
                         Debug.Log($"[TurnSystem] {unit.name} attacks {unit.targetUnit.name} for {damage} damage. {unit.targetUnit.name} HP now {unit.targetUnit.health}.");
 
-                        // NEW: Update the target's health bar
+                        // Update the target's health bar
                         unit.targetUnit.UpdateHealthBar();
                     }
                     else

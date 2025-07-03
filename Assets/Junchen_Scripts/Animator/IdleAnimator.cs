@@ -10,7 +10,7 @@ public class IdleAnimator : MonoBehaviour
 {
     [Header("Idle Animation Settings")]
     [Tooltip("Amplitude of the breathing motion (units).")]
-    public float amplitude = 0.05f;
+    public float amplitude = 0.03f;
 
     [Tooltip("Frequency of the breathing motion (cycles per second).")]
     public float frequency = 1f;

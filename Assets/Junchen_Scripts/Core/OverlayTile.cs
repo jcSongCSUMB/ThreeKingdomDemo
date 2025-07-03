@@ -11,10 +11,10 @@ public class OverlayTile : MonoBehaviour
     public int F { get { return G + H; } }
 
     // Tile status flags
-    public bool isBlocked = false;             // Permanent block (e.g., terrain)
-    public bool isTempBlocked = false;         // Temporary block during planning
-    public bool tempBlockedByPlanning = false; // Used to track tiles for temp cleanup
-    public bool isBlockedThisTurn = false;     // Blocked for the full turn (e.g., enemy tile or planned target)
+    public bool isBlocked;             // Permanent block (e.g., terrain)
+    public bool isTempBlocked;         // Temporary block during planning
+    public bool tempBlockedByPlanning; // Used to track tiles for temp cleanup
+    public bool isBlockedThisTurn;     // Blocked for the full turn (e.g., enemy tile or planned target)
 
     // Grid location
     public OverlayTile Previous;
@@ -29,6 +29,14 @@ public class OverlayTile : MonoBehaviour
     public List<Sprite> arrows;
     public Sprite tempBlockedSprite;   // Assigned in inspector
     private Sprite defaultSprite;      // Sprite to restore
+
+    private void Awake()
+    {
+        isBlocked = false;
+        isTempBlocked = false;
+        tempBlockedByPlanning = false;
+        isBlockedThisTurn = false;
+    }
 
     private void Start()
     {

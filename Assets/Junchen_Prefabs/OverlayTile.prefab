@@ -106,8 +106,12 @@ MonoBehaviour:
   H: 0
   isBlocked: 0
   isTempBlocked: 0
+  tempBlockedByPlanning: 0
+  isBlockedThisTurn: 0
   Previous: {fileID: 0}
   gridLocation: {x: 0, y: 0, z: 0}
+  isPlayerDeployZone: 0
+  isEnemyDeployZone: 0
   arrows:
   - {fileID: 382966541, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
   - {fileID: -827559468, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
@@ -122,8 +126,6 @@ MonoBehaviour:
   - {fileID: 1422338911, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
   - {fileID: 1329891261, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
   - {fileID: 382966541, guid: 61fcc0be4efcb1e4e8b30ea4c1ff58ed, type: 3}
-  isPlayerDeployZone: 0
-  isEnemyDeployZone: 0
   tempBlockedSprite: {fileID: 947946919, guid: 8201b4968c3f08149ab155417871892c, type: 3}
 --- !u!60 &9087250328834290890
 PolygonCollider2D:

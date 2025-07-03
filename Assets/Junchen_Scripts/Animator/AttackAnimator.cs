@@ -10,13 +10,13 @@ public class AttackAnimator : MonoBehaviour
 {
     [Header("Attack Animation Settings")]
     [Tooltip("Peak height of the jump in world units.")]
-    public float jumpHeight = 0.3f;
+    public float jumpHeight = 1.0f;
 
     [Tooltip("Duration of the upward movement (seconds).")]
-    public float upDuration = 0.3f;
+    public float upDuration = 1.0f;
 
     [Tooltip("Duration of the downward movement (seconds).")]
-    public float downDuration = 0.15f;
+    public float downDuration = 0.5f;
 
     // Reference to optional IdleAnimator on the same object
     private IdleAnimator idleAnimator;
