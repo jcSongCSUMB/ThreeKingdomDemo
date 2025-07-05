@@ -47,6 +47,17 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
+    // === NEW ===
+    // Remove a unit from the master unit list
+    public void RemoveUnit(BaseUnit unit)
+    {
+        if (allUnits.Contains(unit))
+        {
+            allUnits.Remove(unit);
+            Debug.Log($"[TurnSystem] Removed unit: {unit.name}");
+        }
+    }
+
     // Transition to the next phase of the turn cycle
     public void NextPhase()
     {

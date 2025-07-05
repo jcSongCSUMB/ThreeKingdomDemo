@@ -50,7 +50,7 @@ public static class PlayerExecutor
                 case PlannedAction.Attack:
                     if (unit.targetUnit != null)
                     {
-                        // Play ATTACKER's attack animation (the unit itself, not the target)
+                        // Play ATTACKER's attack animation
                         if (unit.visual != null)
                         {
                             var animator = unit.visual.GetComponent<AttackAnimator>();
@@ -64,11 +64,20 @@ public static class PlayerExecutor
                         // Apply damage calculation
                         int damage = Mathf.Max(unit.attackPower - unit.targetUnit.defensePower, 1);
                         unit.targetUnit.health -= damage;
-
                         Debug.Log($"[TurnSystem] {unit.name} attacks {unit.targetUnit.name} for {damage} damage. {unit.targetUnit.name} HP now {unit.targetUnit.health}.");
 
                         // Update the target's health bar
                         unit.targetUnit.UpdateHealthBar();
+
+                        // Trigger camera shake at the same moment as damage feedback
+                        CameraShake.Instance.Shake();
+
+                        // NEW: Check if target died
+                        if (unit.targetUnit.health <= 0)
+                        {
+                            Debug.Log($"[PlayerExecutor] Target {unit.targetUnit.name} has died. Starting death sequence.");
+                            yield return TurnSystem.Instance.StartCoroutine(unit.targetUnit.DieAndRemove());
+                        }
                     }
                     else
                     {

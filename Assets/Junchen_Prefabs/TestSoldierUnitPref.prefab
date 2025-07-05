@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6992064173456634798}
   - component: {fileID: 8334382996589232755}
   - component: {fileID: 3063842887860986210}
+  - component: {fileID: 3058602400473817260}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -118,6 +119,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   amplitude: 0.03
   frequency: 1
+--- !u!114 &3058602400473817260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3551583408124587042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b688abddd411324f96d35fcc0dfdb31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tiltAngle: 30
+  duration: 1.5
 --- !u!1 &6143327340201138887
 GameObject:
   m_ObjectHideFlags: 0

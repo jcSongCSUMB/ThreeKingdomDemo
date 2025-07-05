@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +18,6 @@ public enum UnitTeam
 public class BaseUnit : MonoBehaviour
 {
     // === Movement and Action Planning ===
-
     public OverlayTile standOnTile;
     public List<OverlayTile> plannedPath = new List<OverlayTile>();
     public PlannedAction plannedAction = PlannedAction.None;
@@ -26,7 +26,6 @@ public class BaseUnit : MonoBehaviour
     public GameObject visual;
 
     // === Combat Stats ===
-
     public int health = 100;
     public int maxHealth = 100;
     public int attackPower = 30;
@@ -37,7 +36,6 @@ public class BaseUnit : MonoBehaviour
     public BaseUnit targetUnit;
 
     // === Health Bar UI ===
-
     [Header("Health Bar Settings")]
     public GameObject healthBarPrefab;
     private GameObject healthBarInstance;
@@ -46,7 +44,7 @@ public class BaseUnit : MonoBehaviour
     private Vector3 healthBarOffset = new Vector3(0, 0.5f, 0);
 
     // === Health Bar Size Cache ===
-    private float healthBarMaxWidth = 1f;  // Default value
+    private float healthBarMaxWidth = 1f;
 
     private void Start()
     {
@@ -59,7 +57,6 @@ public class BaseUnit : MonoBehaviour
             // Cache the foreground bar transform
             foregroundBar = healthBarInstance.transform.Find("ForegroundBar");
 
-            // Cache the initial full-width scale
             if (foregroundBar != null)
             {
                 healthBarMaxWidth = foregroundBar.localScale.x;
@@ -73,10 +70,7 @@ public class BaseUnit : MonoBehaviour
         UpdateHealthBar();
     }
 
-    /// <summary>
-    /// Updates the health bar's foreground based on current health.
-    /// Scales X based on cached full-width scale.
-    /// </summary>
+    // Updates the health bar based on current health
     public void UpdateHealthBar()
     {
         if (foregroundBar == null) return;
@@ -85,5 +79,26 @@ public class BaseUnit : MonoBehaviour
         Vector3 scale = foregroundBar.localScale;
         scale.x = healthBarMaxWidth * healthPercent;
         foregroundBar.localScale = scale;
+    }
+
+    // === NEW: Coroutine to handle unit death ===
+    public IEnumerator DieAndRemove()
+    {
+        Debug.Log($"[BaseUnit] {name} starting death sequence.");
+
+        if (visual != null)
+        {
+            DieAnimator dieAnimator = visual.GetComponent<DieAnimator>();
+            if (dieAnimator != null)
+            {
+                yield return StartCoroutine(dieAnimator.PlayDeathAnimation());
+            }
+        }
+
+        // Remove from TurnSystem list
+        TurnSystem.Instance.RemoveUnit(this);
+
+        // Finally destroy the GameObject
+        Destroy(gameObject);
     }
 }
