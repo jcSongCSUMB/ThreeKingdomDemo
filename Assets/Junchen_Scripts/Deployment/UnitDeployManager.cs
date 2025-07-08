@@ -70,7 +70,7 @@ public class UnitDeployManager : MonoBehaviour
         deployedUnits.Clear();
         Debug.Log("[DeployManager] All deployed units cleared.");
     }
-    
+
     // Return all currently deployed player units
     public List<BaseUnit> GetAllDeployedPlayerUnits()
     {
@@ -84,5 +84,20 @@ public class UnitDeployManager : MonoBehaviour
             }
         }
         return playerUnits;
+    }
+
+    // NEW: Return all currently deployed enemy units
+    public List<BaseUnit> GetAllDeployedEnemyUnits()
+    {
+        List<BaseUnit> enemyUnits = new List<BaseUnit>();
+        foreach (var unit in deployedUnits)
+        {
+            BaseUnit baseUnit = unit.GetComponent<BaseUnit>();
+            if (baseUnit != null && baseUnit.teamType == UnitTeam.Enemy)
+            {
+                enemyUnits.Add(baseUnit);
+            }
+        }
+        return enemyUnits;
     }
 }

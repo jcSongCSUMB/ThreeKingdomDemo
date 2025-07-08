@@ -77,8 +77,13 @@ public class TurnSystem : MonoBehaviour
 
             case TurnPhase.PlayerExecuting:
                 currentPhase = TurnPhase.EnemyTurn;
+                Debug.Log("[TurnSystem] === EnemyTurn started ===");
 
-                // TODO: Trigger enemy AI logic
+                // Refresh the list of all enemy units from UnitDeployManager
+                allUnits = UnitDeployManager.Instance.GetAllDeployedEnemyUnits();
+                Debug.Log($"[TurnSystem] Updated allUnits list for EnemyTurn. Count: {allUnits.Count}");
+
+                StartEnemyExecutionPhase();
                 break;
 
             case TurnPhase.EnemyTurn:
@@ -112,6 +117,13 @@ public class TurnSystem : MonoBehaviour
     {
         Debug.Log("[TurnSystem] Starting PlayerExecutionPhase Coroutine");
         StartCoroutine(PlayerExecutor.Execute(allUnits));
+    }
+
+    // Start the Coroutine to execute enemy unit actions
+    private void StartEnemyExecutionPhase()
+    {
+        Debug.Log("[TurnSystem] Starting EnemyExecutionPhase Coroutine");
+        StartCoroutine(EnemyExecutor.Execute(allUnits));
     }
 
     // Reset action status for all units belonging to the given team

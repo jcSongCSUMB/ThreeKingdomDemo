@@ -96,6 +96,7 @@ public static class PlayerExecutor
         }
 
         Debug.Log("[TurnSystem] === PlayerExecuting phase complete ===");
+        TurnSystem.Instance.NextPhase();
     }
 
     // Move unit along its planned path

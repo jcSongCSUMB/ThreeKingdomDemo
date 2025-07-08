@@ -59,6 +59,9 @@ public class EnemyDeploymentManager : MonoBehaviour
                 unit.standOnTile = tile;
             }
 
+            // Register deployed enemy in UnitDeployManager
+            UnitDeployManager.Instance.RegisterDeployedUnit(enemy);
+
             Debug.Log($"[EnemyDeploy] Enemy unit deployed at tile: {tile.gridLocation}");
         }
     }
