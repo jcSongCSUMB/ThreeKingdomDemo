@@ -61,34 +61,29 @@ public class TurnSystem : MonoBehaviour
     // Transition to the next phase of the turn cycle
     public void NextPhase()
     {
+        Debug.Log($"[TurnSystem] === NextPhase called. CurrentPhase={currentPhase} ===");
+
         switch (currentPhase)
         {
             case TurnPhase.PlayerPlanning:
                 currentPhase = TurnPhase.PlayerExecuting;
-                ResetUnitStates(UnitTeam.Player);
-
-                // Refresh the list of all player units from UnitDeployManager
+                Debug.Log("[TurnSystem] Switching to PlayerExecuting phase.");
                 allUnits = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
-                Debug.Log($"[TurnSystem] Updated allUnits list. Count: {allUnits.Count}");
-
-                // Start player execution as Coroutine
-                StartPlayerExecutionPhase();
+                StartCoroutine(PlayerExecutor.Execute(allUnits));
                 break;
 
             case TurnPhase.PlayerExecuting:
                 currentPhase = TurnPhase.EnemyTurn;
-                Debug.Log("[TurnSystem] === EnemyTurn started ===");
-
-                // Refresh the list of all enemy units from UnitDeployManager
+                Debug.Log("[TurnSystem] Switching to EnemyTurn phase.");
                 allUnits = UnitDeployManager.Instance.GetAllDeployedEnemyUnits();
-                Debug.Log($"[TurnSystem] Updated allUnits list for EnemyTurn. Count: {allUnits.Count}");
-
-                StartEnemyExecutionPhase();
+                StartCoroutine(EnemyExecutor.Execute(allUnits));
                 break;
 
             case TurnPhase.EnemyTurn:
                 currentPhase = TurnPhase.PlayerPlanning;
                 currentTurn++;
+
+                Debug.Log("[TurnSystem] Switching to PlayerPlanning phase.");
 
                 // Clear path and action plans for all player units
                 ClearAllPlayerPlans();
@@ -104,12 +99,16 @@ public class TurnSystem : MonoBehaviour
 
                 // Start of new full turn: mark enemy tiles as turn-blocked
                 MarkEnemyTilesAsTurnBlocked();
+                
+                // Refresh allUnits list with latest player units for new PlayerPlanning phase
+                allUnits = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
+                Debug.Log($"[TurnSystem] Refreshed allUnits for PlayerPlanning. Count: {allUnits.Count}");
 
-                // TODO: Reset planning environment for next turn
+                // NEW: Rebind all units' standOnTile to current MapManager overlay tiles
+                RebindAllUnitsToCurrentTiles();
+
                 break;
         }
-
-        Debug.Log($"[TurnSystem] Turn Phase changed to: {currentPhase}");
     }
 
     // Start the Coroutine to execute player unit actions
@@ -219,6 +218,22 @@ public class TurnSystem : MonoBehaviour
         foreach (OverlayTile tile in allTiles)
         {
             tile.UnmarkTurnBlocked();
+        }
+    }
+
+    // NEW: Rebind all units' standOnTile to MapManager's current overlay tiles
+    private void RebindAllUnitsToCurrentTiles()
+    {
+        foreach (var unit in allUnits)
+        {
+            if (unit.standOnTile == null) continue;
+
+            Vector2Int gridPos = unit.standOnTile.grid2DLocation;
+
+            if (MapManager.Instance.map.TryGetValue(gridPos, out OverlayTile newTile))
+            {
+                unit.standOnTile = newTile;
+            }
         }
     }
 }

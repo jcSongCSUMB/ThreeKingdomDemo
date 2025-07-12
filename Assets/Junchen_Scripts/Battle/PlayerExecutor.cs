@@ -96,6 +96,11 @@ public static class PlayerExecutor
         }
 
         Debug.Log("[TurnSystem] === PlayerExecuting phase complete ===");
+
+        // === NEW ===
+        // Save latest player unit positions into UnitDeployManager
+        UnitDeployManager.Instance.UpdateRegisteredPlayerUnits(allUnits);
+
         TurnSystem.Instance.NextPhase();
     }
 

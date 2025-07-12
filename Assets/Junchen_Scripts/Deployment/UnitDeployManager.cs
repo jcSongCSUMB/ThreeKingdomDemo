@@ -86,7 +86,7 @@ public class UnitDeployManager : MonoBehaviour
         return playerUnits;
     }
 
-    // NEW: Return all currently deployed enemy units
+    // Return all currently deployed enemy units
     public List<BaseUnit> GetAllDeployedEnemyUnits()
     {
         List<BaseUnit> enemyUnits = new List<BaseUnit>();
@@ -99,5 +99,25 @@ public class UnitDeployManager : MonoBehaviour
             }
         }
         return enemyUnits;
+    }
+
+    // === NEW ===
+    // Refreshes the deployed player units list with latest references (positions, states)
+    public void UpdateRegisteredPlayerUnits(List<BaseUnit> playerUnits)
+    {
+        // Remove old player units
+        deployedUnits.RemoveAll(u =>
+        {
+            BaseUnit bu = u.GetComponent<BaseUnit>();
+            return bu != null && bu.teamType == UnitTeam.Player;
+        });
+
+        // Add updated player units
+        foreach (var unit in playerUnits)
+        {
+            deployedUnits.Add(unit.gameObject);
+        }
+
+        Debug.Log($"[DeployManager] Updated registered player units. Count now: {GetAllDeployedPlayerUnits().Count}");
     }
 }
