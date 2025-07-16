@@ -82,31 +82,36 @@ public class TurnSystem : MonoBehaviour
             case TurnPhase.EnemyTurn:
                 currentPhase = TurnPhase.PlayerPlanning;
                 currentTurn++;
-
                 Debug.Log("[TurnSystem] Switching to PlayerPlanning phase.");
 
-                // Clear path and action plans for all player units
-                ClearAllPlayerPlans();
-
-                // Remove any temporary defense bonuses applied during previous turn
-                RemoveAllTemporaryDefenseBonuses();
-
-                // Clear all tiles temporarily blocked by previous plans
-                ClearAllTempBlockedTiles();
-
-                // Clear all tiles marked as turn-blocked (end of full turn)
+                // --- Full‑turn housekeeping (enemy list still in allUnits) ---
                 ClearAllTurnBlockedTiles();
-
-                // Start of new full turn: mark enemy tiles as turn-blocked
                 MarkEnemyTilesAsTurnBlocked();
-                
-                // Refresh allUnits list with latest player units for new PlayerPlanning phase
+
+                // --- Switch allUnits to player list for the new planning phase ---
                 allUnits = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
                 Debug.Log($"[TurnSystem] Refreshed allUnits for PlayerPlanning. Count: {allUnits.Count}");
 
-                // NEW: Rebind all units' standOnTile to current MapManager overlay tiles
-                RebindAllUnitsToCurrentTiles();
+                // Debug: log flag before reset
+                foreach (var unit in allUnits)
+                    Debug.Log($"[TurnSystem] Before Reset - {unit.name}: hasFinishedAction = {unit.hasFinishedAction}");
 
+                // Unlock player units for the new turn
+                ResetUnitStates(UnitTeam.Player);
+
+                // Debug: log flag after reset
+                foreach (var unit in allUnits)
+                    Debug.Log($"[TurnSystem] After Reset  - {unit.name}: hasFinishedAction = {unit.hasFinishedAction}");
+
+                // Clear previous plans and bonuses for player units
+                ClearAllPlayerPlans();
+                RemoveAllTemporaryDefenseBonuses();
+
+                // Clear temporary path‑planning blocks
+                ClearAllTempBlockedTiles();
+
+                // Rebind standOnTile references to MapManager overlay tiles
+                RebindAllUnitsToCurrentTiles();
                 break;
         }
     }

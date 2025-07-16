@@ -1,0 +1,570 @@
+[MapManager] Start() entered.
+UnityEngine.Debug:Log (object)
+MapManager:Start () (at Assets/Junchen_Scripts/Core/MapManager.cs:36)
+
+Total overlay tiles generated: 441
+UnityEngine.Debug:Log (object)
+MapManager:Start () (at Assets/Junchen_Scripts/Core/MapManager.cs:75)
+
+Overlay tile X range: -10 to 10
+UnityEngine.Debug:Log (object)
+MapManager:Start () (at Assets/Junchen_Scripts/Core/MapManager.cs:89)
+
+Overlay tile Y range: -11 to 9
+UnityEngine.Debug:Log (object)
+MapManager:Start () (at Assets/Junchen_Scripts/Core/MapManager.cs:90)
+
+[EnemyDeploy] Starting auto-deploy of enemy units...
+UnityEngine.Debug:Log (object)
+EnemyDeploymentManager:AutoDeployEnemies () (at Assets/Junchen_Scripts/Deployment/EnemyDeploymentManager.cs:29)
+BattleUIController/<PlayPrepareSequence>d__6:MoveNext () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:76)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyDeploy] Enemy unit deployed at tile: (1, 3, 1)
+UnityEngine.Debug:Log (object)
+EnemyDeploymentManager:AutoDeployEnemies () (at Assets/Junchen_Scripts/Deployment/EnemyDeploymentManager.cs:65)
+BattleUIController/<PlayPrepareSequence>d__6:MoveNext () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:76)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyDeploy] Enemy unit deployed at tile: (4, 2, 1)
+UnityEngine.Debug:Log (object)
+EnemyDeploymentManager:AutoDeployEnemies () (at Assets/Junchen_Scripts/Deployment/EnemyDeploymentManager.cs:65)
+BattleUIController/<PlayPrepareSequence>d__6:MoveNext () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:76)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyDeploy] Enemy unit deployed at tile: (-1, 1, 1)
+UnityEngine.Debug:Log (object)
+EnemyDeploymentManager:AutoDeployEnemies () (at Assets/Junchen_Scripts/Deployment/EnemyDeploymentManager.cs:65)
+BattleUIController/<PlayPrepareSequence>d__6:MoveNext () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:76)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyDeploy] Enemy unit deployed at tile: (-2, 3, 1)
+UnityEngine.Debug:Log (object)
+EnemyDeploymentManager:AutoDeployEnemies () (at Assets/Junchen_Scripts/Deployment/EnemyDeploymentManager.cs:65)
+BattleUIController/<PlayPrepareSequence>d__6:MoveNext () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:76)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyDeploy] Enemy unit deployed at tile: (-2, 0, 1)
+UnityEngine.Debug:Log (object)
+EnemyDeploymentManager:AutoDeployEnemies () (at Assets/Junchen_Scripts/Deployment/EnemyDeploymentManager.cs:65)
+BattleUIController/<PlayPrepareSequence>d__6:MoveNext () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:76)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+Selected unit: TestSoldierUnitPref
+UnityEngine.Debug:Log (object)
+UnitDeployManager:SelectUnit (UnityEngine.GameObject) (at Assets/Junchen_Scripts/Deployment/UnitDeployManager.cs:38)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[CanvasGroup] Button UnitButton disabled.
+UnityEngine.Debug:Log (object)
+UnitButtonController:DisableButton () (at Assets/Junchen_Scripts/UI/UnitButtonController.cs:22)
+TileClickSpawner:Update () (at Assets/Junchen_Scripts/Deployment/TileClickSpawner.cs:79)
+
+Unit successfully deployed on tile: (-3, -2, 1)
+UnityEngine.Debug:Log (object)
+TileClickSpawner:Update () (at Assets/Junchen_Scripts/Deployment/TileClickSpawner.cs:83)
+
+Selected unit: TestSoldierUnitPref
+UnityEngine.Debug:Log (object)
+UnitDeployManager:SelectUnit (UnityEngine.GameObject) (at Assets/Junchen_Scripts/Deployment/UnitDeployManager.cs:38)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[CanvasGroup] Button UnitButton (1) disabled.
+UnityEngine.Debug:Log (object)
+UnitButtonController:DisableButton () (at Assets/Junchen_Scripts/UI/UnitButtonController.cs:22)
+TileClickSpawner:Update () (at Assets/Junchen_Scripts/Deployment/TileClickSpawner.cs:79)
+
+Unit successfully deployed on tile: (-1, -2, 1)
+UnityEngine.Debug:Log (object)
+TileClickSpawner:Update () (at Assets/Junchen_Scripts/Deployment/TileClickSpawner.cs:83)
+
+[BattleUI] PhaseControlPanel activated.
+UnityEngine.Debug:Log (object)
+BattleUIController:OnStartClicked () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:119)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[BattleUI] Start clicked. Transition to battle phase.
+UnityEngine.Debug:Log (object)
+BattleUIController:OnStartClicked () (at Assets/Junchen_Scripts/UI/BattleUIController.cs:125)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[Selector] Clicked object: OverlayTile(Clone)
+UnityEngine.Debug:Log (object)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:50)
+
+[Planner] No unit selected
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:62)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:66)
+
+[Selector] Unit selected: TestSoldierUnitPref(Clone) at tile (-3, -2)
+UnityEngine.Debug:Log (object)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:70)
+
+[PlannerPanel] Show() called
+UnityEngine.Debug:Log (object)
+PlannerActionPanelController:Show () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:18)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:75)
+
+[PlannerPanel] Attack button clicked
+UnityEngine.Debug:Log (object)
+PlannerActionPanelController:OnAttackClicked () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:45)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[Planner] Mode set to: Attack
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:71)
+PlannerActionPanelController:OnAttackClicked () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:46)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[Planner] Showing legal attack prep tiles: 3
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:ShowMovementRange (BaseUnit) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:118)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:76)
+PlannerActionPanelController:OnAttackClicked () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:46)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[AttackPlanner] Click ignored — pointer is over UI
+UnityEngine.Debug:Log (object)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:35)
+
+[AttackPlanner] Prep tile selected at (-3, 0). Now select an adjacent enemy.
+UnityEngine.Debug:Log (object)
+AttackPlannerInputHandler:HandlePreparationTileSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:109)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:48)
+
+[AttackPlanner] Attack planned: TestSoldierUnitPref(Clone) -> TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+AttackPlannerInputHandler:HandleTargetUnitSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:137)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:52)
+
+[Planner] Mode set to: None
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:71)
+AttackPlannerInputHandler:ResetPlanner () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:175)
+AttackPlannerInputHandler:HandleTargetUnitSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:140)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:52)
+
+[PlannerPanel] Hide() called
+UnityEngine.Debug:Log (object)
+PlannerActionPanelController:Hide () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:27)
+AttackPlannerInputHandler:ResetPlanner () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:180)
+AttackPlannerInputHandler:HandleTargetUnitSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:140)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:52)
+
+[Selector] Clicked object: OverlayTile(Clone)
+UnityEngine.Debug:Log (object)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:50)
+
+[Planner] Mode set to: None
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:71)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:66)
+
+[Selector] Unit selected: TestSoldierUnitPref(Clone) at tile (-1, -2)
+UnityEngine.Debug:Log (object)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:70)
+
+[PlannerPanel] Show() called
+UnityEngine.Debug:Log (object)
+PlannerActionPanelController:Show () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:18)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:75)
+
+[PlannerPanel] Attack button clicked
+UnityEngine.Debug:Log (object)
+PlannerActionPanelController:OnAttackClicked () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:45)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[Planner] Mode set to: Attack
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:71)
+PlannerActionPanelController:OnAttackClicked () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:46)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[Planner] Showing legal attack prep tiles: 3
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:ShowMovementRange (BaseUnit) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:118)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:76)
+PlannerActionPanelController:OnAttackClicked () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:46)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[AttackPlanner] Click ignored — pointer is over UI
+UnityEngine.Debug:Log (object)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:35)
+
+[AttackPlanner] Prep tile selected at (-1, 0). Now select an adjacent enemy.
+UnityEngine.Debug:Log (object)
+AttackPlannerInputHandler:HandlePreparationTileSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:109)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:48)
+
+[AttackPlanner] Attack planned: TestSoldierUnitPref(Clone) -> TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+AttackPlannerInputHandler:HandleTargetUnitSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:137)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:52)
+
+[Planner] Mode set to: None
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:71)
+AttackPlannerInputHandler:ResetPlanner () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:175)
+AttackPlannerInputHandler:HandleTargetUnitSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:140)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:52)
+
+[PlannerPanel] Hide() called
+UnityEngine.Debug:Log (object)
+PlannerActionPanelController:Hide () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:27)
+AttackPlannerInputHandler:ResetPlanner () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:180)
+AttackPlannerInputHandler:HandleTargetUnitSelection (OverlayTile) (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:140)
+AttackPlannerInputHandler:Update () (at Assets/Junchen_Scripts/Battle/AttackPlannerInputHandler.cs:52)
+
+[PhaseControlPanel] NextPhaseButton clicked.
+UnityEngine.Debug:Log (object)
+PhaseControlPanelController:OnNextPhaseClicked () (at Assets/Junchen_Scripts/UI/PhaseControlPanelController.cs:55)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[TurnSystem] === NextPhase called. CurrentPhase=PlayerPlanning ===
+UnityEngine.Debug:Log (object)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:64)
+PhaseControlPanelController:OnNextPhaseClicked () (at Assets/Junchen_Scripts/UI/PhaseControlPanelController.cs:56)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[TurnSystem] Switching to PlayerExecuting phase.
+UnityEngine.Debug:Log (object)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:70)
+PhaseControlPanelController:OnNextPhaseClicked () (at Assets/Junchen_Scripts/UI/PhaseControlPanelController.cs:56)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[TurnSystem] === Executing all Player units ===
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:18)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:72)
+PhaseControlPanelController:OnNextPhaseClicked () (at Assets/Junchen_Scripts/UI/PhaseControlPanelController.cs:56)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[TurnSystem] Executing unit: TestSoldierUnitPref(Clone) (plannedAction=Attack)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:25)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:72)
+PhaseControlPanelController:OnNextPhaseClicked () (at Assets/Junchen_Scripts/UI/PhaseControlPanelController.cs:56)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@f3fac7af1578/Runtime/UGUI/EventSystem/EventSystem.cs:530)
+
+[PhaseControlPanel] NextPhaseButton disabled (Not planning phase).
+UnityEngine.Debug:Log (object)
+PhaseControlPanelController:Update () (at Assets/Junchen_Scripts/UI/PhaseControlPanelController.cs:46)
+
+[TurnSystem] TestSoldierUnitPref(Clone) moved to tile (-3, -1)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<MoveUnitAlongPath>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:123)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] TestSoldierUnitPref(Clone) moved to tile (-3, 0)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<MoveUnitAlongPath>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:123)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[PlayerExecutor] Playing AttackAnimator on attacker: TestSoldierUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:59)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] TestSoldierUnitPref(Clone) attacks TestEnemyUnitPref(Clone) for 20 damage. TestEnemyUnitPref(Clone) HP now 80.
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:67)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] Executing unit: TestSoldierUnitPref(Clone) (plannedAction=Attack)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:25)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] TestSoldierUnitPref(Clone) moved to tile (-1, -1)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<MoveUnitAlongPath>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:123)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] TestSoldierUnitPref(Clone) moved to tile (-1, 0)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<MoveUnitAlongPath>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:123)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[PlayerExecutor] Playing AttackAnimator on attacker: TestSoldierUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:59)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] TestSoldierUnitPref(Clone) attacks TestEnemyUnitPref(Clone) for 20 damage. TestEnemyUnitPref(Clone) HP now 60.
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:67)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] === PlayerExecuting phase complete ===
+UnityEngine.Debug:Log (object)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:98)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[DeployManager] Updated registered player units. Count now: 2
+UnityEngine.Debug:Log (object)
+UnitDeployManager:UpdateRegisteredPlayerUnits (System.Collections.Generic.List`1<BaseUnit>) (at Assets/Junchen_Scripts/Deployment/UnitDeployManager.cs:121)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:102)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] === NextPhase called. CurrentPhase=PlayerExecuting ===
+UnityEngine.Debug:Log (object)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:64)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:104)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] Switching to EnemyTurn phase.
+UnityEngine.Debug:Log (object)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:77)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:104)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] === Enemy Phase Begin ===
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:21)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:79)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:104)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Planning action for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:31)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:79)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:104)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] - AI Planning for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:72)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:79)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:104)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Decided to MOVE to (-1, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:117)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:79)
+PlayerExecutor/<Execute>d__3:MoveNext () (at Assets/Junchen_Scripts/Battle/PlayerExecutor.cs:104)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (1, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (0, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (-1, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) has no action.
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:151)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:44)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Planning action for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:31)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] - AI Planning for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:72)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Decided to MOVE to (1, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:117)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (3, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (2, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (1, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) has no action.
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:151)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:44)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Planning action for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:31)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] - AI Planning for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:72)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Decided to ATTACK TestSoldierUnitPref(Clone) via (-1, 1)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:99)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Playing AttackAnimator on TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:168)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:44)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) attacks TestSoldierUnitPref(Clone) for 20 damage. Target HP now 80.
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:175)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Planning action for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:31)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] - AI Planning for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:72)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Decided to ATTACK TestSoldierUnitPref(Clone) via (-2, 1)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:99)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (-2, 2)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) moved to tile (-2, 1)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<MoveUnitAlongPath>d__7:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:141)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Playing AttackAnimator on TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:168)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:44)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) attacks TestSoldierUnitPref(Clone) for 20 damage. Target HP now 80.
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:175)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Planning action for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:31)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] - AI Planning for TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:72)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Decided to ATTACK TestSoldierUnitPref(Clone) via (-2, 0)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<PlanEnemyAction>d__6:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:99)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:33)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] Playing AttackAnimator on TestEnemyUnitPref(Clone)
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:168)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:44)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] TestEnemyUnitPref(Clone) attacks TestSoldierUnitPref(Clone) for 20 damage. Target HP now 60.
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<ExecutePlannedAction>d__8:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:175)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[EnemyExecutor] === Enemy Phase Complete ===
+UnityEngine.Debug:Log (object)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:55)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] === NextPhase called. CurrentPhase=EnemyTurn ===
+UnityEngine.Debug:Log (object)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:64)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:58)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] Switching to PlayerPlanning phase.
+UnityEngine.Debug:Log (object)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:86)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:58)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[TurnSystem] Refreshed allUnits for PlayerPlanning. Count: 2
+UnityEngine.Debug:Log (object)
+TurnSystem:NextPhase () (at Assets/Junchen_Scripts/Core/TurnSystem.cs:105)
+EnemyExecutor/<Execute>d__4:MoveNext () (at Assets/Junchen_Scripts/Battle/EnemyExecutor.cs:58)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+[PhaseControlPanel] NextPhaseButton enabled (PlayerPlanning phase).
+UnityEngine.Debug:Log (object)
+PhaseControlPanelController:Update () (at Assets/Junchen_Scripts/UI/PhaseControlPanelController.cs:38)
+
+[Selector] Clicked object: OverlayTile(Clone)
+UnityEngine.Debug:Log (object)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:50)
+
+[Selector] No selectable unit on this tile. Selection cleared.
+UnityEngine.Debug:Log (object)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:87)
+
+[PlannerPanel] Hide() called
+UnityEngine.Debug:Log (object)
+PlannerActionPanelController:Hide () (at Assets/Junchen_Scripts/UI/PlannerActionPanelController.cs:27)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:92)
+
+[Planner] No unit selected
+UnityEngine.Debug:Log (object)
+TileClickPathPlanner:SetPlannerMode (PlannerMode) (at Assets/Junchen_Scripts/Battle/TileClickPathPlanner.cs:62)
+UnitSelector:Update () (at Assets/Junchen_Scripts/Core/UnitSelector.cs:98)
+
