@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Responsible for executing all planned player unit actions in the PlayerExecuting phase.
-/// </summary>
+// UPDATED 2025-07-17: post-execution prune of destroyed player units + safe deploy refresh.
+// Removed XML summary comment per project style.
+
 public static class PlayerExecutor
 {
     // Define a constant defense boost value for Defend action
@@ -17,11 +17,18 @@ public static class PlayerExecutor
     {
         Debug.Log("[TurnSystem] === Executing all Player units ===");
 
-        foreach (BaseUnit unit in allUnits)
+        // Build a local filtered list of live player units (safer than iterating mixed list)
+        List<BaseUnit> playerUnits = new List<BaseUnit>();
+        foreach (BaseUnit u in allUnits)
         {
-            if (unit.teamType != UnitTeam.Player)
-                continue;
+            if (u == null) continue;
+            if (u.teamType != UnitTeam.Player) continue;
+            if (u.gameObject == null) continue; // destroyed check
+            playerUnits.Add(u);
+        }
 
+        foreach (BaseUnit unit in playerUnits)
+        {
             Debug.Log($"[TurnSystem] Executing unit: {unit.name} (plannedAction={unit.plannedAction})");
 
             // === Execute movement along plannedPath with stepping animation ===
@@ -72,7 +79,7 @@ public static class PlayerExecutor
                         // Trigger camera shake at the same moment as damage feedback
                         CameraShake.Instance.Shake();
 
-                        // NEW: Check if target died
+                        // Check if target died
                         if (unit.targetUnit.health <= 0)
                         {
                             Debug.Log($"[PlayerExecutor] Target {unit.targetUnit.name} has died. Starting death sequence.");
@@ -96,11 +103,28 @@ public static class PlayerExecutor
         }
 
         Debug.Log("[TurnSystem] === PlayerExecuting phase complete ===");
+        
+        // Post-execution housekeeping (keep DeployManager clean)
+        if (UnitDeployManager.Instance != null)
+        {
+            // Remove destroyed player unit references
+            UnitDeployManager.Instance.PruneDestroyedPlayerUnits();
 
-        // === NEW ===
-        // Save latest player unit positions into UnitDeployManager
-        UnitDeployManager.Instance.UpdateRegisteredPlayerUnits(allUnits);
+            // Gather a fresh list of live player units from scene (authoritative)
+            List<BaseUnit> freshPlayers = new List<BaseUnit>();
+            foreach (BaseUnit u in Object.FindObjectsOfType<BaseUnit>())
+            {
+                if (u.teamType == UnitTeam.Player && u.gameObject != null)
+                {
+                    freshPlayers.Add(u);
+                }
+            }
 
+            // Update DeployManager with authoritative list
+            UnitDeployManager.Instance.UpdateRegisteredPlayerUnits(freshPlayers);
+        }
+
+        // Advance the turn system to enemy phase
         TurnSystem.Instance.NextPhase();
     }
 

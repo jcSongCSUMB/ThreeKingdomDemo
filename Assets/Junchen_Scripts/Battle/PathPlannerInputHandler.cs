@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Linq;
 
+// UPDATED 2025-07-17: planning phase now marks TEMP only (no TurnBlocked).
+// Old behavior MarkAsTurnBlocked() on selection removed per design.
+// Previous destination still unmarked (temp + turn) for safety.
+
 public class PathPlannerInputHandler : MonoBehaviour
 {
     private TileClickPathPlanner planner;
@@ -11,7 +15,7 @@ public class PathPlannerInputHandler : MonoBehaviour
     private void Awake()
     {
         planner = FindObjectOfType<TileClickPathPlanner>();
-        pathFinder = new PathFinder(); // Initialize local instance of PathFinder
+        pathFinder = new PathFinder(); // local instance of PathFinder
     }
 
     private void Update()
@@ -78,25 +82,20 @@ public class PathPlannerInputHandler : MonoBehaviour
         List<OverlayTile> path = pathFinder.FindPath(unit.standOnTile, clickedTile, planner.HighlightedTiles);
         if (path == null || path.Count == 0) return;
 
-        // unmark previously blocked tile if any
+        // release previously blocked tile (this unit's old destination)
         if (unit.plannedPath != null && unit.plannedPath.Count > 0)
         {
             OverlayTile previousTile = unit.plannedPath.Last();
-            previousTile.UnmarkTempBlocked();
-
-            // remove turn-blocked flag
-            previousTile.UnmarkTurnBlocked();
+            previousTile.UnmarkTempBlocked(); // clear temp claim
+            previousTile.UnmarkTurnBlocked(); // safety: clear legacy turn flag if present
         }
 
         unit.plannedPath = path;
 
         OverlayTile destinationTile = path[path.Count - 1];
-        destinationTile.MarkAsTempBlocked();
+        destinationTile.MarkAsTempBlocked(); // planning: temp only
 
-        // also mark as turn-blocked
-        destinationTile.MarkAsTurnBlocked();
-
-        Debug.Log($"[Planner] Tile {destinationTile.grid2DLocation} temporarily blocked for this unit.");
+        Debug.Log($"[Planner] Tile {destinationTile.grid2DLocation} temporarily blocked for {unit.name}.");
 
         planner.ClearAllHighlights();
 

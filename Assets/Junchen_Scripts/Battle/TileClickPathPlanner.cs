@@ -10,6 +10,10 @@ public enum PlannerMode
     Defend
 }
 
+// UPDATED 2025-07-17: planner no longer auto-unmarks tiles in ClearAllHighlights().
+// Use ReleaseCurrentUnitPlanning() when cancelling/switching units to free the tile.
+// Planning phase now uses TEMP-only blocking; legacy TurnBlocked clearing retained in release helper for safety.
+
 public class TileClickPathPlanner : MonoBehaviour
 {
     // Current planner mode (Move, Attack, Defend, or None)
@@ -32,17 +36,31 @@ public class TileClickPathPlanner : MonoBehaviour
     // Public accessor for highlighted tiles
     public List<OverlayTile> HighlightedTiles => currentRangeTiles;
 
-    // Clears both the highlighted tiles and hover path arrows
+    // Clears both the highlighted tiles and hover path arrows (VISUALS ONLY)
     public void ClearAllHighlights()
     {
         ClearPreviousRangeTiles();
         ClearPathVisual();
+        // NOTE: No longer unmarking any tile blocking flags here.
+        // Use ReleaseCurrentUnitPlanning() explicitly when cancelling a plan.
+    }
 
-        // 🆕 Clear turn-blocked flag from current unit's destination tile
-        if (UnitSelector.currentUnit != null && UnitSelector.currentUnit.plannedPath != null && UnitSelector.currentUnit.plannedPath.Count > 0)
+    // Explicitly release the current unit's planned destination tile (Temp + Turn safety)
+    // Optionally clear highlights + arrows.
+    public void ReleaseCurrentUnitPlanning(bool clearHighlights = true)
+    {
+        BaseUnit unit = currentUnit ?? UnitSelector.currentUnit;
+        if (unit != null && unit.plannedPath != null && unit.plannedPath.Count > 0)
         {
-            OverlayTile lastTile = UnitSelector.currentUnit.plannedPath.Last();
-            lastTile.UnmarkTurnBlocked();  // 🔁 Clear turn-block flag
+            OverlayTile lastTile = unit.plannedPath.Last();
+            lastTile.UnmarkTempBlocked();   // free temp claim
+            lastTile.UnmarkTurnBlocked();   // safety: clear any legacy turn block
+            Debug.Log($"[Planner] Released planning tile {lastTile.grid2DLocation} for {unit.name}.");
+        }
+
+        if (clearHighlights)
+        {
+            ClearAllHighlights();
         }
     }
 
@@ -112,7 +130,7 @@ public class TileClickPathPlanner : MonoBehaviour
             // Highlight only filtered legal tiles
             foreach (var tile in currentRangeTiles)
             {
-                tile.ShowTile();  // Red tint if you want to customize this
+                tile.ShowTile();  // customize tint if needed
             }
 
             Debug.Log($"[Planner] Showing legal attack prep tiles: {currentRangeTiles.Count}");

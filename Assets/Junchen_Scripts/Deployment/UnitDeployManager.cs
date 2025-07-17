@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;    // for RemoveAll / filtering
 
 public class UnitDeployManager : MonoBehaviour
 {
@@ -70,10 +71,59 @@ public class UnitDeployManager : MonoBehaviour
         deployedUnits.Clear();
         Debug.Log("[DeployManager] All deployed units cleared.");
     }
+    
+    // === Prune helpers ===================================================
 
-    // Return all currently deployed player units
+    // Returns true if the GameObject is null or has been destroyed.
+    private bool IsDestroyedOrNull(GameObject go)
+    {
+        // Unity overrides == for destroyed objects so a simple null check works.
+        return go == null;
+    }
+
+    // Remove destroyed objects that belong to the Player team.
+    public void PruneDestroyedPlayerUnits()
+    {
+        int before = deployedUnits.Count;
+
+        deployedUnits.RemoveAll(u =>
+        {
+            if (IsDestroyedOrNull(u)) return true;
+            BaseUnit bu = u.GetComponent<BaseUnit>();
+            // Remove if missing BaseUnit OR belongs to Player and is effectively gone (standOnTile may be null after Destroy)
+            return bu == null || bu.teamType == UnitTeam.Player && IsDestroyedOrNull(bu.gameObject);
+        });
+
+        int after = deployedUnits.Count;
+        if (before != after)
+            Debug.Log($"[DeployManager] Pruned player units. {before - after} removed. New count={after}");
+    }
+
+    // Optional: prune both sides (can be used at full-turn boundaries)
+    public void PruneDestroyedUnits(bool includeEnemies = true)
+    {
+        int before = deployedUnits.Count;
+
+        deployedUnits.RemoveAll(u =>
+        {
+            if (IsDestroyedOrNull(u)) return true;
+            BaseUnit bu = u.GetComponent<BaseUnit>();
+            if (bu == null) return true;
+            if (!includeEnemies && bu.teamType == UnitTeam.Enemy) return false;
+            return IsDestroyedOrNull(bu.gameObject);
+        });
+
+        int after = deployedUnits.Count;
+        if (before != after)
+            Debug.Log($"[DeployManager] Pruned {(includeEnemies ? "all" : "player")} destroyed units. Removed={before - after}, Remaining={after}");
+    }
+    
+    // Return all currently deployed player units (filtered / pruned)
     public List<BaseUnit> GetAllDeployedPlayerUnits()
     {
+        // ensure dead/destroyed refs are gone before returning
+        PruneDestroyedPlayerUnits();
+
         List<BaseUnit> playerUnits = new List<BaseUnit>();
         foreach (var unit in deployedUnits)
         {
@@ -85,10 +135,16 @@ public class UnitDeployManager : MonoBehaviour
         }
         return playerUnits;
     }
-
-    // Return all currently deployed enemy units
-    public List<BaseUnit> GetAllDeployedEnemyUnits()
+    
+    // Return all currently deployed enemy units (filtered / pruned if desired)
+    public List<BaseUnit> GetAllDeployedEnemyUnits(bool autoPrune = true)
     {
+        if (autoPrune)
+        {
+            // prune destroyed objects but keep enemies if alive
+            PruneDestroyedUnits(includeEnemies: true);
+        }
+
         List<BaseUnit> enemyUnits = new List<BaseUnit>();
         foreach (var unit in deployedUnits)
         {
@@ -100,14 +156,18 @@ public class UnitDeployManager : MonoBehaviour
         }
         return enemyUnits;
     }
-
-    // === NEW ===
+    
     // Refreshes the deployed player units list with latest references (positions, states)
+    // Called after PlayerExecution completes to sync TurnSystem + DeployManager.
     public void UpdateRegisteredPlayerUnits(List<BaseUnit> playerUnits)
     {
-        // Remove old player units
+        // first prune out any destroyed player unit refs
+        PruneDestroyedPlayerUnits();
+
+        // Remove all existing player units (live ones will be re-added below)
         deployedUnits.RemoveAll(u =>
         {
+            if (IsDestroyedOrNull(u)) return true;
             BaseUnit bu = u.GetComponent<BaseUnit>();
             return bu != null && bu.teamType == UnitTeam.Player;
         });
@@ -115,7 +175,10 @@ public class UnitDeployManager : MonoBehaviour
         // Add updated player units
         foreach (var unit in playerUnits)
         {
-            deployedUnits.Add(unit.gameObject);
+            if (unit != null)
+            {
+                deployedUnits.Add(unit.gameObject);
+            }
         }
 
         Debug.Log($"[DeployManager] Updated registered player units. Count now: {GetAllDeployedPlayerUnits().Count}");

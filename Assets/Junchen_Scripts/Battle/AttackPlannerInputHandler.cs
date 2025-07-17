@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Linq;
 
+// UPDATED 2025-07-17: planning phase marks TEMP only (no TurnBlocked here).
+// Previous prep tile still unmarked (temp + turn) for safety when re-selecting.
+
 public class AttackPlannerInputHandler : MonoBehaviour
 {
     private TileClickPathPlanner planner;
@@ -98,12 +101,13 @@ public class AttackPlannerInputHandler : MonoBehaviour
         {
             OverlayTile previous = unit.plannedPath.Last();
             previous.UnmarkTempBlocked();
-            previous.UnmarkTurnBlocked();
+            previous.UnmarkTurnBlocked(); // safety clear (legacy)
         }
 
         unit.plannedPath = path;
+
+        // planning: temp only (no TurnBlocked until planning phase ends)
         clickedTile.MarkAsTempBlocked();
-        clickedTile.MarkAsTurnBlocked();
 
         selectedPrepTile = clickedTile;
         Debug.Log($"[AttackPlanner] Prep tile selected at {clickedTile.grid2DLocation}. Now select an adjacent enemy.");

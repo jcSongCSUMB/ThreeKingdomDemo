@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// UPDATED 2025-07-17: planning-temp overhaul, batch Temp->Turn, full temp clear, deploy prune hooks.
+
 public enum TurnPhase
 {
     PlayerPlanning,
@@ -38,17 +40,15 @@ public class TurnSystem : MonoBehaviour
         MarkEnemyTilesAsTurnBlocked();
     }
 
-    // Register a unit if not already in the unit list
     public void RegisterUnit(BaseUnit unit)
     {
         if (!allUnits.Contains(unit))
         {
             allUnits.Add(unit);
+            Debug.Log($"[TurnSystem] Registered unit: {unit.name}");
         }
     }
 
-    // === NEW ===
-    // Remove a unit from the master unit list
     public void RemoveUnit(BaseUnit unit)
     {
         if (allUnits.Contains(unit))
@@ -66,6 +66,8 @@ public class TurnSystem : MonoBehaviour
         switch (currentPhase)
         {
             case TurnPhase.PlayerPlanning:
+                // finalize player planning: convert temp blocks to turn-blocks and clean up
+                PlayerPlanning_EndTransformTempToTurn();
                 currentPhase = TurnPhase.PlayerExecuting;
                 Debug.Log("[TurnSystem] Switching to PlayerExecuting phase.");
                 allUnits = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
@@ -85,6 +87,7 @@ public class TurnSystem : MonoBehaviour
                 Debug.Log("[TurnSystem] Switching to PlayerPlanning phase.");
 
                 // --- Full‑turn housekeeping (enemy list still in allUnits) ---
+                ClearAllTempBlocked_FULL();   // ensure no temp carry-over from both sides
                 ClearAllTurnBlockedTiles();
                 MarkEnemyTilesAsTurnBlocked();
 
@@ -96,7 +99,6 @@ public class TurnSystem : MonoBehaviour
                 foreach (var unit in allUnits)
                     Debug.Log($"[TurnSystem] Before Reset - {unit.name}: hasFinishedAction = {unit.hasFinishedAction}");
 
-                // Unlock player units for the new turn
                 ResetUnitStates(UnitTeam.Player);
 
                 // Debug: log flag after reset
@@ -107,7 +109,7 @@ public class TurnSystem : MonoBehaviour
                 ClearAllPlayerPlans();
                 RemoveAllTemporaryDefenseBonuses();
 
-                // Clear temporary path‑planning blocks
+                // Clear temporary path‑planning blocks (legacy light clear; full clear already run above)
                 ClearAllTempBlockedTiles();
 
                 // Rebind standOnTile references to MapManager overlay tiles
@@ -142,7 +144,6 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Returns true if the current phase is PlayerPlanning
     public bool IsPlanningPhase()
     {
         return currentPhase == TurnPhase.PlayerPlanning;
@@ -176,7 +177,64 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Reset all temporarily blocked tiles and restore their default appearance
+    // Convert all player planning TEMP blocks into TURN blocks at end of planning phase.
+    // Also clear any stray TEMP blocks that are not final destinations.
+    private void PlayerPlanning_EndTransformTempToTurn()
+    {
+        // get current player units (allUnits should already be player units in planning, but re-fetch to be safe)
+        List<BaseUnit> players = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
+
+        // track which tiles become final turn-blocked
+        HashSet<OverlayTile> finalTiles = new HashSet<OverlayTile>();
+
+        foreach (var u in players)
+        {
+            OverlayTile dest = null;
+
+            // plannedPath final tile if exists
+            if (u.plannedPath != null && u.plannedPath.Count > 0)
+            {
+                dest = u.plannedPath[u.plannedPath.Count - 1];
+            }
+            else
+            {
+                // no planned move/attack/defend path -> use current standOnTile
+                dest = u.standOnTile;
+            }
+
+            if (dest == null) continue;
+
+            // clear temp then mark turn block
+            dest.UnmarkTempBlocked();
+            dest.MarkAsTurnBlocked();
+            finalTiles.Add(dest);
+        }
+
+        // clear any remaining temp blocks globally (excluding finalTiles already handled above but safe to call)
+        OverlayTile[] allTiles = FindObjectsOfType<OverlayTile>();
+        foreach (var tile in allTiles)
+        {
+            if (!finalTiles.Contains(tile) && tile.isTempBlocked)
+            {
+                tile.UnmarkTempBlocked();
+            }
+        }
+    }
+
+    // Aggressively clear ALL temp-block flags on every tile (used at new planning phase).
+    private void ClearAllTempBlocked_FULL()
+    {
+        OverlayTile[] allTiles = FindObjectsOfType<OverlayTile>();
+        foreach (OverlayTile tile in allTiles)
+        {
+            if (tile.isTempBlocked || tile.tempBlockedByPlanning)
+            {
+                tile.UnmarkTempBlocked();
+            }
+        }
+    }
+
+    // Reset all temporarily blocked tiles and restore their default appearance (legacy light clear)
     private void ClearAllTempBlockedTiles()
     {
         OverlayTile[] allTiles = FindObjectsOfType<OverlayTile>();
@@ -190,7 +248,7 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Mark all tiles occupied by enemy units as temporarily blocked
+    // Mark all tiles occupied by enemy units as temporarily blocked (legacy visual helper)
     private void MarkEnemyTilesAsBlocked()
     {
         foreach (BaseUnit unit in allUnits)
@@ -226,7 +284,7 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // NEW: Rebind all units' standOnTile to MapManager's current overlay tiles
+    // Rebind all units' standOnTile to MapManager's current overlay tiles
     private void RebindAllUnitsToCurrentTiles()
     {
         foreach (var unit in allUnits)

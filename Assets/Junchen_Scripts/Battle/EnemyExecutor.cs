@@ -3,130 +3,155 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// UPDATED 2025-07-17: defensive null filtering (player list + enemy list), guard against destroyed targets,
+// never assume standOnTile present; fixes MissingReference when player units die.
+
 public static class EnemyExecutor
 {
     private const int DEFENSE_BOOST_AMOUNT = 5;
     private const float MOVE_SPEED = 2f;
     private const float TILE_THRESHOLD = 0.01f;
 
-    // === NEW ===
     // Store all target tiles reserved by enemy units this turn
     private static HashSet<OverlayTile> reservedTargetTilesThisTurn = new HashSet<OverlayTile>();
 
-    /// <summary>
-    /// Main entry point for EnemyTurn execution phase.
-    /// </summary>
+    // Main entry point for EnemyTurn execution phase
     public static IEnumerator Execute(List<BaseUnit> allUnits)
     {
         Debug.Log("[EnemyExecutor] === Enemy Phase Begin ===");
-        
-        // Clear the reserved target tiles at the start of each enemy turn
+
+        // clear reserved target tiles at the start of each enemy turn
         reservedTargetTilesThisTurn.Clear();
 
-        foreach (BaseUnit unit in allUnits)
+        // build a safe local list of enemy units (filter null / destroyed / wrong team)
+        List<BaseUnit> enemyUnits = new List<BaseUnit>();
+        foreach (BaseUnit u in allUnits)
         {
-            if (unit.teamType != UnitTeam.Enemy)
-                continue;
+            if (u == null) continue;
+            if (u.teamType != UnitTeam.Enemy) continue;
+            if (u.gameObject == null) continue;
+            enemyUnits.Add(u);
+        }
 
-            Debug.Log($"[EnemyExecutor] Planning action for {unit.name}");
+        foreach (BaseUnit enemy in enemyUnits)
+        {
+            if (enemy == null || enemy.gameObject == null) continue;
 
-            yield return TurnSystem.Instance.StartCoroutine(
-                PlanEnemyAction(unit, UnitDeployManager.Instance.GetAllDeployedPlayerUnits())
-            );
+            Debug.Log($"[EnemyExecutor] Planning action for {enemy.name}");
 
-            // Movement phase
-            if (unit.plannedPath != null && unit.plannedPath.Count > 0)
+            // fetch current player units (DeployManager already prunes, but double-check for safety)
+            List<BaseUnit> players = UnitDeployManager.Instance != null
+                ? FilterLivePlayers(UnitDeployManager.Instance.GetAllDeployedPlayerUnits())
+                : FilterLivePlayers(Object.FindObjectsOfType<BaseUnit>().Where(p => p.teamType == UnitTeam.Player).ToList());
+
+            yield return TurnSystem.Instance.StartCoroutine(PlanEnemyAction(enemy, players));
+
+            // movement
+            if (enemy.plannedPath != null && enemy.plannedPath.Count > 0)
             {
-                yield return TurnSystem.Instance.StartCoroutine(MoveUnitAlongPath(unit));
+                yield return TurnSystem.Instance.StartCoroutine(MoveUnitAlongPath(enemy));
             }
 
-            // Execute the planned action
-            yield return TurnSystem.Instance.StartCoroutine(ExecutePlannedAction(unit));
+            // execute action
+            yield return TurnSystem.Instance.StartCoroutine(ExecutePlannedAction(enemy));
 
-            // Mark as finished
-            unit.hasFinishedAction = true;
-
-            // Clear planning fields
-            unit.plannedPath.Clear();
-            unit.plannedAction = PlannedAction.None;
-            unit.targetUnit = null;
+            // mark finished + clear planning fields
+            enemy.hasFinishedAction = true;
+            enemy.plannedPath.Clear();
+            enemy.plannedAction = PlannedAction.None;
+            enemy.targetUnit = null;
         }
 
         Debug.Log("[EnemyExecutor] === Enemy Phase Complete ===");
 
-        // Advance to next phase
+        // advance to next phase
         TurnSystem.Instance.NextPhase();
     }
-    
-    // Filter out any candidate tiles already reserved by other enemy units this turn
+
+    // filter helper: live player units only
+    private static List<BaseUnit> FilterLivePlayers(List<BaseUnit> input)
+    {
+        List<BaseUnit> result = new List<BaseUnit>();
+        foreach (var u in input)
+        {
+            if (u == null) continue;
+            if (u.teamType != UnitTeam.Player) continue;
+            if (u.gameObject == null) continue;
+            result.Add(u);
+        }
+        return result;
+    }
+
+    // filter out any candidate tiles already reserved by other enemy units this turn
     private static List<OverlayTile> FilterReservedTargetTiles(List<OverlayTile> candidateTiles)
     {
         return candidateTiles
-            .Where(tile => !reservedTargetTilesThisTurn.Contains(tile))
+            .Where(tile => tile != null && !reservedTargetTilesThisTurn.Contains(tile))
             .ToList();
     }
 
-    // Decide plannedAction and plannedPath for an enemy unit
-    private static IEnumerator PlanEnemyAction(BaseUnit enemy, List<BaseUnit> allUnits)
+    // decide plannedAction and plannedPath for an enemy unit
+    private static IEnumerator PlanEnemyAction(BaseUnit enemy, List<BaseUnit> players)
     {
         Debug.Log($"[EnemyExecutor] - AI Planning for {enemy.name}");
 
-        BaseUnit target = FindClosestPlayerUnit(enemy, allUnits);
+        BaseUnit target = FindClosestPlayerUnit(enemy, players);
         if (target == null)
         {
-            Debug.Log($"[EnemyExecutor] No player units found. Defaulting to DEFEND.");
+            Debug.Log("[EnemyExecutor] No live player units found. DEFEND.");
             enemy.plannedAction = PlannedAction.Defend;
             yield break;
         }
 
         RangeFinder rf = new RangeFinder();
         List<OverlayTile> attackRange = rf.GetTilesInRange(enemy, PlannerMode.Attack);
-        
-        // Filter out tiles already reserved this turn
+
+        // filter out tiles already reserved this turn
         List<OverlayTile> availableAttackTiles = FilterReservedTargetTiles(attackRange);
 
         OverlayTile prepTile = FindValidAttackPrepTile(enemy, target, availableAttackTiles);
         if (prepTile != null)
         {
-            // === NEW ===
-            // Reserve this tile for this turn
+            // reserve this tile for this turn
             reservedTargetTilesThisTurn.Add(prepTile);
 
             PathFinder pf = new PathFinder();
             enemy.plannedPath = pf.FindPath(enemy.standOnTile, prepTile, availableAttackTiles);
             enemy.targetUnit = target;
             enemy.plannedAction = PlannedAction.Attack;
-            Debug.Log($"[EnemyExecutor] Decided to ATTACK {target.name} via {prepTile.grid2DLocation}");
+            Debug.Log($"[EnemyExecutor] ATTACK {target.name} via {prepTile.grid2DLocation}");
             yield break;
         }
-        
-        // Try to Move closer while avoiding reserved tiles
+
+        // try to Move closer while avoiding reserved tiles
         List<OverlayTile> moveRange = rf.GetTilesInRange(enemy, PlannerMode.Move);
         List<OverlayTile> availableMoveTiles = FilterReservedTargetTiles(moveRange);
 
         OverlayTile moveTile = FindClosestTileTowardsTarget(enemy, target, availableMoveTiles);
         if (moveTile != null)
         {
-            // === NEW ===
-            // Reserve this tile for this turn
+            // reserve this tile
             reservedTargetTilesThisTurn.Add(moveTile);
 
             PathFinder pf = new PathFinder();
             enemy.plannedPath = pf.FindPath(enemy.standOnTile, moveTile, availableMoveTiles);
             enemy.plannedAction = PlannedAction.None;
-            Debug.Log($"[EnemyExecutor] Decided to MOVE to {moveTile.grid2DLocation}");
+            Debug.Log($"[EnemyExecutor] MOVE to {moveTile.grid2DLocation}");
             yield break;
         }
 
+        // fallback
         enemy.plannedAction = PlannedAction.Defend;
-        Debug.Log($"[EnemyExecutor] Decided to DEFEND in place.");
+        Debug.Log("[EnemyExecutor] DEFEND in place.");
     }
 
-    // Move the unit along its planned path
+    // move the unit along its planned path
     private static IEnumerator MoveUnitAlongPath(BaseUnit unit)
     {
         foreach (OverlayTile tile in unit.plannedPath)
         {
+            if (tile == null) yield break;
+
             Vector3 targetPos = tile.transform.position;
 
             while (Vector2.Distance(unit.transform.position, targetPos) > TILE_THRESHOLD)
@@ -142,7 +167,7 @@ public static class EnemyExecutor
         }
     }
 
-    // Actually execute the planned action (Attack / Defend)
+    // actually execute the planned action (Attack / Defend)
     private static IEnumerator ExecutePlannedAction(BaseUnit unit)
     {
         switch (unit.plannedAction)
@@ -154,11 +179,11 @@ public static class EnemyExecutor
             case PlannedAction.Defend:
                 unit.defensePower += DEFENSE_BOOST_AMOUNT;
                 unit.tempDefenseBonus = DEFENSE_BOOST_AMOUNT;
-                Debug.Log($"[EnemyExecutor] {unit.name} is DEFENDING. Defense +{DEFENSE_BOOST_AMOUNT}.");
+                Debug.Log($"[EnemyExecutor] {unit.name} DEFENDING +{DEFENSE_BOOST_AMOUNT}");
                 break;
 
             case PlannedAction.Attack:
-                if (unit.targetUnit != null)
+                if (unit.targetUnit != null && unit.targetUnit.gameObject != null)
                 {
                     if (unit.visual != null)
                     {
@@ -172,35 +197,37 @@ public static class EnemyExecutor
 
                     int damage = Mathf.Max(unit.attackPower - unit.targetUnit.defensePower, 1);
                     unit.targetUnit.health -= damage;
-                    Debug.Log($"[EnemyExecutor] {unit.name} attacks {unit.targetUnit.name} for {damage} damage. Target HP now {unit.targetUnit.health}.");
+                    Debug.Log($"[EnemyExecutor] {unit.name} attacks {unit.targetUnit.name} for {damage} dmg. Target HP {unit.targetUnit.health}");
 
                     unit.targetUnit.UpdateHealthBar();
                     CameraShake.Instance.Shake();
 
                     if (unit.targetUnit.health <= 0)
                     {
-                        Debug.Log($"[EnemyExecutor] {unit.targetUnit.name} has died.");
+                        Debug.Log($"[EnemyExecutor] {unit.targetUnit.name} died.");
                         yield return TurnSystem.Instance.StartCoroutine(unit.targetUnit.DieAndRemove());
                     }
                 }
                 else
                 {
-                    Debug.Log($"[EnemyExecutor] {unit.name} planned attack but has no target.");
+                    Debug.Log($"[EnemyExecutor] {unit.name} planned attack but target missing.");
                 }
                 break;
         }
     }
 
-    // Find the closest player unit on the map
-    private static BaseUnit FindClosestPlayerUnit(BaseUnit enemy, List<BaseUnit> allUnits)
+    // find the closest player unit on the map
+    private static BaseUnit FindClosestPlayerUnit(BaseUnit enemy, List<BaseUnit> players)
     {
+        if (enemy == null || enemy.standOnTile == null) return null;
         BaseUnit closest = null;
         int minDistance = int.MaxValue;
 
-        foreach (var unit in allUnits)
+        foreach (var unit in players)
         {
-            if (unit.teamType != UnitTeam.Player || unit.standOnTile == null)
-                continue;
+            if (unit == null) continue;
+            if (unit.teamType != UnitTeam.Player) continue;
+            if (unit.standOnTile == null) continue;
 
             int dist = Mathf.Abs(enemy.standOnTile.grid2DLocation.x - unit.standOnTile.grid2DLocation.x)
                      + Mathf.Abs(enemy.standOnTile.grid2DLocation.y - unit.standOnTile.grid2DLocation.y);
@@ -215,11 +242,14 @@ public static class EnemyExecutor
         return closest;
     }
 
-    // Find a valid attack prep tile adjacent to the target
+    // find a valid attack prep tile adjacent to the target
     private static OverlayTile FindValidAttackPrepTile(BaseUnit enemy, BaseUnit target, List<OverlayTile> candidateTiles)
     {
+        if (target == null || target.standOnTile == null) return null;
+
         foreach (OverlayTile tile in candidateTiles)
         {
+            if (tile == null) continue;
             var neighbors = MapManager.Instance.GetSurroundingTilesEightDirections(tile.grid2DLocation);
             if (neighbors.Contains(target.standOnTile))
             {
@@ -229,16 +259,18 @@ public static class EnemyExecutor
         return null;
     }
 
-    // Find the reachable tile that brings the enemy closest to the target
+    // find the reachable tile that brings the enemy closest to the target
     private static OverlayTile FindClosestTileTowardsTarget(BaseUnit enemy, BaseUnit target, List<OverlayTile> candidateTiles)
     {
+        if (target == null || target.standOnTile == null) return null;
+
         OverlayTile bestTile = null;
         int bestDist = int.MaxValue;
 
         foreach (var tile in candidateTiles)
         {
-            if (tile.isBlocked || tile.isTempBlocked)
-                continue;
+            if (tile == null) continue;
+            if (tile.isBlocked || tile.isTempBlocked) continue;
 
             int dist = Mathf.Abs(tile.grid2DLocation.x - target.standOnTile.grid2DLocation.x)
                      + Mathf.Abs(tile.grid2DLocation.y - target.standOnTile.grid2DLocation.y);
