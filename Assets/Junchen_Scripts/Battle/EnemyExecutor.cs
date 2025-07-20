@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// UPDATED 2025-07-17: defensive null filtering (player list + enemy list), guard against destroyed targets,
-// never assume standOnTile present; fixes MissingReference when player units die.
+// UPDATED 2025‑07‑20: add TurnBlocked handling in MoveUnitAlongPath
+// All other logic unchanged; comment style preserved.
 
 public static class EnemyExecutor
 {
@@ -148,6 +148,10 @@ public static class EnemyExecutor
     // move the unit along its planned path
     private static IEnumerator MoveUnitAlongPath(BaseUnit unit)
     {
+        // Record current tile before movement starts
+        OverlayTile prevTile = unit.standOnTile;
+        OverlayTile destTile = prevTile;
+
         foreach (OverlayTile tile in unit.plannedPath)
         {
             if (tile == null) yield break;
@@ -162,8 +166,19 @@ public static class EnemyExecutor
 
             unit.transform.position = targetPos;
             unit.standOnTile = tile;
+            destTile = tile;
 
             Debug.Log($"[EnemyExecutor] {unit.name} moved to tile {tile.grid2DLocation}");
+        }
+
+        // === TurnBlocked management ===
+        if (prevTile != null)
+        {
+            prevTile.UnmarkTurnBlocked();   // release old tile
+        }
+        if (destTile != null)
+        {
+            destTile.MarkAsTurnBlocked();   // lock new tile
         }
     }
 
@@ -270,7 +285,7 @@ public static class EnemyExecutor
         foreach (var tile in candidateTiles)
         {
             if (tile == null) continue;
-            if (tile.isBlocked || tile.isTempBlocked) continue;
+            if (tile.isBlocked || tile.isTempBlocked) continue;   // TurnBlocked allowed; PathFinder will handle collision at runtime
 
             int dist = Mathf.Abs(tile.grid2DLocation.x - target.standOnTile.grid2DLocation.x)
                      + Mathf.Abs(tile.grid2DLocation.y - target.standOnTile.grid2DLocation.y);

@@ -1,50 +1,63 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 
+// -----------------------------------------------------------------------------
+// RangeFinder
+//   • Calculates reachable tiles for Move / Attack planners.
+//   • Filters out tiles that are permanently blocked (isBlocked)
+//     or blocked for the entire turn (isBlockedThisTurn) so UI high‑light
+//     always matches actual pathfinding feasibility.
+// -----------------------------------------------------------------------------
 public class RangeFinder
 {
-    /// <summary>
-    /// Gets all tiles in range from a given grid location and range value.
-    /// This is the original method.
-    /// </summary>
+    // -------------------------------------------------------------------------
+    // GetTilesInRange(location, range)
+    //   Breadth‑first expansion up to <range> steps in 4‑dir grid.
+    //   Returns DISTINCT tiles that are NOT blocked / turn‑blocked.
+    // -------------------------------------------------------------------------
     public List<OverlayTile> GetTilesInRange(Vector2Int location, int range)
     {
-        var startingTile = MapManager.Instance.map[location];
-        var inRangeTiles = new List<OverlayTile>();
-        int stepCount = 0;
+        OverlayTile startTile = MapManager.Instance.map[location];
+        var inRangeTiles       = new List<OverlayTile> { startTile };
+        var frontierLastStep   = new List<OverlayTile> { startTile };
+        int stepsTaken         = 0;
 
-        inRangeTiles.Add(startingTile);
-
-        // Should contain the surroundingTiles of the previous step. 
-        var tilesForPreviousStep = new List<OverlayTile>();
-        tilesForPreviousStep.Add(startingTile);
-
-        while (stepCount < range)
+        while (stepsTaken < range)
         {
-            var surroundingTiles = new List<OverlayTile>();
+            var frontierNext = new List<OverlayTile>();
 
-            foreach (var item in tilesForPreviousStep)
+            foreach (OverlayTile tile in frontierLastStep)
             {
-                surroundingTiles.AddRange(MapManager.Instance.GetSurroundingTiles(new Vector2Int(item.gridLocation.x, item.gridLocation.y)));
+                frontierNext.AddRange(
+                    MapManager.Instance.GetSurroundingTiles(tile.grid2DLocation)
+                );
             }
 
-            inRangeTiles.AddRange(surroundingTiles);
-            tilesForPreviousStep = surroundingTiles.Distinct().ToList();
-            stepCount++;
+            inRangeTiles.AddRange(frontierNext);
+            frontierLastStep = frontierNext.Distinct().ToList();
+            stepsTaken++;
         }
 
-        return inRangeTiles.Distinct().ToList();
+        // Keep only distinct, non‑blocked tiles
+        return inRangeTiles
+            .Distinct()
+            .Where(tile => !tile.isBlocked && !tile.isBlockedThisTurn)
+            .ToList();
     }
 
-    /// <summary>
-    /// New method — determines range based on unit's action points and planner mode.
-    /// Attack mode uses (actionPoints - 1); otherwise full actionPoints.
-    /// </summary>
+    // -------------------------------------------------------------------------
+    // GetTilesInRange(unit, mode)
+    //   Wrapper that derives <range> from the unit's action points.
+    //   • Move   : full actionPoints
+    //   • Attack : actionPoints - 1  (must reserve 1 point for the attack itself)
+    // -------------------------------------------------------------------------
     public List<OverlayTile> GetTilesInRange(BaseUnit unit, PlannerMode mode)
     {
-        int range = (mode == PlannerMode.Attack) ? Mathf.Max(unit.actionPoints - 1, 0) : unit.actionPoints;
+        int range = (mode == PlannerMode.Attack)
+                    ? Mathf.Max(unit.actionPoints - 1, 0)
+                    : unit.actionPoints;
+
         return GetTilesInRange(unit.standOnTile.grid2DLocation, range);
     }
 }

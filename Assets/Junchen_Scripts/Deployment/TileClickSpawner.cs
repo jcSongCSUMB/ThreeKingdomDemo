@@ -63,8 +63,8 @@ public class TileClickSpawner : MonoBehaviour
                         unit.standOnTile = tile;
                     }
 
-                    // Mark this tile as blocked
-                    tile.MarkAsBlocked();
+                    // --- Changed: use TurnBlocked instead of permanent Block ---
+                    tile.MarkAsTurnBlocked();   // was: tile.MarkAsBlocked();
 
                     // Clear current unit selection
                     UnitDeployManager.Instance.ClearSelection();

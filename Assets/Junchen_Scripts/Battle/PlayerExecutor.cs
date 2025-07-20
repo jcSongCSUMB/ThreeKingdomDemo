@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// UPDATED 2025-07-17: post-execution prune of destroyed player units + safe deploy refresh.
-// Removed XML summary comment per project style.
+// UPDATED 2025‑07‑20: add TurnBlocked handling (release old tile, lock new tile)
+// All other logic unchanged; comment style preserved.
 
 public static class PlayerExecutor
 {
@@ -131,6 +131,12 @@ public static class PlayerExecutor
     // Move unit along its planned path
     private static IEnumerator MoveUnitAlongPath(BaseUnit unit)
     {
+        // Record the tile the unit is currently standing on before movement starts
+        OverlayTile prevTile = unit.standOnTile;
+
+        // If the unit will move, the last element in plannedPath will be the destination tile
+        OverlayTile destTile = prevTile;
+
         foreach (OverlayTile tile in unit.plannedPath)
         {
             Vector3 targetPos = tile.transform.position;
@@ -143,8 +149,19 @@ public static class PlayerExecutor
 
             unit.transform.position = targetPos;
             unit.standOnTile = tile;
+            destTile = tile; // keep updating until loop ends with final tile
 
             Debug.Log($"[TurnSystem] {unit.name} moved to tile {tile.grid2DLocation}");
+        }
+
+        // === TurnBlocked management ===
+        if (prevTile != null)
+        {
+            prevTile.UnmarkTurnBlocked();   // release old tile
+        }
+        if (destTile != null)
+        {
+            destTile.MarkAsTurnBlocked();   // lock new tile
         }
     }
 }
