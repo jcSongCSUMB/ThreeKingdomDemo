@@ -81,11 +81,19 @@ public class BaseUnit : MonoBehaviour
         foregroundBar.localScale = scale;
     }
 
-    // === NEW: Coroutine to handle unit death ===
+    // Coroutine to handle unit death
     public IEnumerator DieAndRemove()
     {
         Debug.Log($"[BaseUnit] {name} starting death sequence.");
 
+        // fully release the tile this unit occupies
+        if (standOnTile != null)
+        {
+            standOnTile.UnmarkTurnBlocked();   // clear full‑turn block
+            standOnTile.UnmarkTempBlocked();   // clear any temp block + visual
+        }
+
+        // Play death animation if assigned
         if (visual != null)
         {
             DieAnimator dieAnimator = visual.GetComponent<DieAnimator>();
