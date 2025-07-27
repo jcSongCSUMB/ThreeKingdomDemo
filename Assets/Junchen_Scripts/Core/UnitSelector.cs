@@ -32,10 +32,26 @@ public class UnitSelector : MonoBehaviour
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
-        // Prevent unit selection while in any planner mode
+        // Fetch planner once
         TileClickPathPlanner planner = FindObjectOfType<TileClickPathPlanner>();
+
+        // ===== PATCH: allow global cancel even when planner is not None =====
         if (planner != null && planner.plannerMode != PlannerMode.None)
+        {
+            // ESC or Right Mouse Button => force cancel back to None (release current temp plan safely)
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
+            {
+                planner.ForceCancel(releaseCurrentPlanning: true);
+                // Optional: also hide action panel after cancel
+                PlannerActionPanelController panelX = FindObjectOfType<PlannerActionPanelController>();
+                if (panelX != null) panelX.Hide();
+                return; // end this frame; next frame selection will be allowed
+            }
+
+            // If not cancelling, do not allow selection while in a planner mode
             return;
+        }
+        // ===== END PATCH =====
 
         // Check for left mouse click
         if (Input.GetMouseButtonDown(0))

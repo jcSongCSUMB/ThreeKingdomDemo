@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Linq;
 
 // UPDATED 2025-07-17: planning phase marks TEMP only (no TurnBlocked here).
 // Previous prep tile still unmarked (temp + turn) for safety when re-selecting.
+// UPDATED 2025-07-26: support adjacent direct attack (click enemy first).
 
 public class AttackPlannerInputHandler : MonoBehaviour
 {
@@ -46,6 +48,12 @@ public class AttackPlannerInputHandler : MonoBehaviour
                 return;
             }
 
+            // adjacent direct attack (no prep-tile needed)
+            if (selectedPrepTile == null && TryDirectAttackIfAdjacent(clickedTile))
+            {
+                return; // planned and exited
+            }
+
             if (selectedPrepTile == null)
             {
                 HandlePreparationTileSelection(clickedTile);
@@ -69,6 +77,51 @@ public class AttackPlannerInputHandler : MonoBehaviour
             return hit.collider.GetComponent<OverlayTile>();
         }
         return null;
+    }
+
+    // Adjacent direct attack branch
+    private bool TryDirectAttackIfAdjacent(OverlayTile clickedTile)
+    {
+        BaseUnit unit = UnitSelector.currentUnit;
+        if (unit == null || unit.standOnTile == null) return false;
+
+        // Find enemy on the clicked tile
+        BaseUnit enemy = FindObjectsOfType<BaseUnit>()
+            .FirstOrDefault(u => u.standOnTile == clickedTile && u.teamType != unit.teamType);
+        if (enemy == null) return false;
+
+        // Check adjacency (Chebyshev = 1)
+        if (!IsAdjacent(unit.standOnTile.grid2DLocation, clickedTile.grid2DLocation)) return false;
+
+        // AP check: direct attack requires at least 1 AP
+        if (unit.actionPoints < 1)
+        {
+            Debug.Log("[AttackPlanner] Not enough AP for direct attack.");
+            return false;
+        }
+
+        // Clear previous temp block (if any previous plan existed)
+        if (unit.plannedPath != null && unit.plannedPath.Count > 0)
+        {
+            OverlayTile previous = unit.plannedPath.Last();
+            if (previous != null)
+            {
+                previous.UnmarkTempBlocked();
+                previous.UnmarkTurnBlocked(); // safety clear (legacy)
+            }
+        }
+
+        // Plan: stay on current tile and attack
+        unit.plannedPath = new List<OverlayTile>() { unit.standOnTile }; // for consistent release/transform
+        unit.standOnTile.MarkAsTempBlocked(); // planning uses TEMP only
+        unit.targetUnit = enemy;
+        unit.plannedAction = PlannedAction.Attack;
+
+        Debug.Log($"[AttackPlanner] Direct attack planned: {unit.name} -> {enemy.name} (no move)");
+
+        planner.ClearAllHighlights();
+        ResetPlanner();
+        return true;
     }
 
     // Handle the first click to select a valid tile for preparation

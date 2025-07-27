@@ -28,17 +28,17 @@ public class DefendPlannerInputHandler : MonoBehaviour
             return;
         }
 
-        // Optional: clear previous planned path
-        unit.plannedPath.Clear();
+        // Optional: clear previous planned path (null-safe)
+        if (unit.plannedPath != null) unit.plannedPath.Clear();
 
         // Mark action type
         unit.plannedAction = PlannedAction.Defend;
 
-        // Mark current tile visually if needed
+        // Planning-phase: TEMP only (Turn will be built at phase end)
         if (unit.standOnTile != null)
         {
             unit.standOnTile.MarkAsTempBlocked();
-            unit.standOnTile.MarkAsTurnBlocked();
+            // removed: unit.standOnTile.MarkAsTurnBlocked(); // avoid polluting reachable/prep tiles across turns
 
             Debug.Log($"[DefendPlanner] Unit {unit.name} plans to DEFEND on tile {unit.standOnTile.grid2DLocation}.");
         }
@@ -54,7 +54,7 @@ public class DefendPlannerInputHandler : MonoBehaviour
             panel.Hide();
         }
 
-        // Reset planner mode to None
+        // Reset planner mode to None (now allowed without a selected unit)
         planner.SetPlannerMode(PlannerMode.None);
     }
 }

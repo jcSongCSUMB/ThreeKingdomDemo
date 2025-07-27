@@ -4,6 +4,7 @@ using UnityEngine;
 
 // UPDATED 2025‑07‑20: add Turn‑block rebuild for all live units at the start of each
 // PlayerPlanning phase to prevent same‑turn overlapping.
+// UPDATED 2025‑07‑26: add end‑of‑phase win/lose detection (no UI yet, Debug.Log only).
 
 public enum TurnPhase
 {
@@ -70,6 +71,9 @@ public class TurnSystem : MonoBehaviour
                 break;
 
             case TurnPhase.PlayerExecuting:
+                // NEW: end‑of‑phase win/lose detection (stop before entering EnemyTurn)
+                if (TryEndBattleIfOneSideEliminated()) return;
+
                 currentPhase = TurnPhase.EnemyTurn;
                 Debug.Log("[TurnSystem] Switching to EnemyTurn phase.");
                 allUnits = UnitDeployManager.Instance.GetAllDeployedEnemyUnits();
@@ -77,15 +81,18 @@ public class TurnSystem : MonoBehaviour
                 break;
 
             case TurnPhase.EnemyTurn:
+                // NEW: end‑of‑phase win/lose detection (stop before rebuilding planning state)
+                if (TryEndBattleIfOneSideEliminated()) return;
+
                 currentPhase = TurnPhase.PlayerPlanning;
                 currentTurn++;
                 Debug.Log("[TurnSystem] Switching to PlayerPlanning phase.");
 
-                // --- Full‑turn housekeeping ---
+                // Full‑turn housekeeping
                 ClearAllTempBlocked_FULL();    // ensure no temp carry‑over
                 ClearAllTurnBlockedTiles();    // remove previous turn‑blocks
 
-                // NEW: mark every live unit's current tile as TurnBlocked (player + enemy)
+                // mark every live unit's current tile as TurnBlocked (player + enemy)
                 MarkAllLiveUnitsTilesAsTurnBlocked();
 
                 MarkEnemyTilesAsTurnBlocked(); // keep enemy tiles blocked for planning visuals
@@ -238,11 +245,40 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // NEW: mark every live unit's current tile as TurnBlocked (player + enemy)
+    // mark every live unit's current tile as TurnBlocked (player + enemy)
     private void MarkAllLiveUnitsTilesAsTurnBlocked()
     {
         foreach (BaseUnit u in FindObjectsOfType<BaseUnit>())
             if (u != null && u.gameObject != null && u.standOnTile != null)
                 u.standOnTile.MarkAsTurnBlocked();
+    }
+
+    // end‑of‑phase win/lose detection
+    private bool TryEndBattleIfOneSideEliminated()
+    {
+        int players = 0, enemies = 0;
+
+        foreach (var u in FindObjectsOfType<BaseUnit>())
+        {
+            if (u == null || u.gameObject == null) continue;
+            if (u.teamType == UnitTeam.Player) players++;
+            else if (u.teamType == UnitTeam.Enemy) enemies++;
+        }
+
+        if (players == 0)
+        {
+            Debug.Log("[Battle] PlayerLose — all player units are eliminated. (TODO: show result panel)");
+            battleStarted = false;
+            return true;
+        }
+
+        if (enemies == 0)
+        {
+            Debug.Log("[Battle] PlayerWin — all enemy units are eliminated. (TODO: show result panel)");
+            battleStarted = false;
+            return true;
+        }
+
+        return false;
     }
 }
