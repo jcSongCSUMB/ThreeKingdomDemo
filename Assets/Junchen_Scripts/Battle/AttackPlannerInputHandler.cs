@@ -7,6 +7,8 @@ using System.Linq;
 // UPDATED 2025-07-17: planning phase marks TEMP only (no TurnBlocked here).
 // Previous prep tile still unmarked (temp + turn) for safety when re-selecting.
 // UPDATED 2025-07-26: support adjacent direct attack (click enemy first).
+// UPDATED 2025-07-29: use coord-equality for tile matching to avoid reference mismatch;
+// add light-weight [ATTACK_VIS] log for valid prep tiles count.
 
 public class AttackPlannerInputHandler : MonoBehaviour
 {
@@ -85,9 +87,13 @@ public class AttackPlannerInputHandler : MonoBehaviour
         BaseUnit unit = UnitSelector.currentUnit;
         if (unit == null || unit.standOnTile == null) return false;
 
-        // Find enemy on the clicked tile
+        // coord-equality to avoid reference mismatch on tiles
+        var clickedPos = clickedTile.grid2DLocation;
         BaseUnit enemy = FindObjectsOfType<BaseUnit>()
-            .FirstOrDefault(u => u.standOnTile == clickedTile && u.teamType != unit.teamType);
+            .FirstOrDefault(u => u != null
+                && u.teamType != unit.teamType
+                && u.standOnTile != null
+                && u.standOnTile.grid2DLocation == clickedPos);
         if (enemy == null) return false;
 
         // Check adjacency (Chebyshev = 1)
@@ -179,8 +185,13 @@ public class AttackPlannerInputHandler : MonoBehaviour
             return;
         }
 
+        // coord-equality for stable enemy hit test
+        var clickedPos = clickedTile.grid2DLocation;
         BaseUnit[] allUnits = FindObjectsOfType<BaseUnit>();
-        BaseUnit enemy = allUnits.FirstOrDefault(u => u.standOnTile == clickedTile && u.teamType != unit.teamType);
+        BaseUnit enemy = allUnits.FirstOrDefault(u => u != null
+            && u.teamType != unit.teamType
+            && u.standOnTile != null
+            && u.standOnTile.grid2DLocation == clickedPos);
 
         if (enemy == null)
         {
@@ -208,11 +219,22 @@ public class AttackPlannerInputHandler : MonoBehaviour
             // Use 8-directional neighbor check
             List<OverlayTile> neighbors = MapManager.Instance.GetSurroundingTilesEightDirections(tile.grid2DLocation);
 
-            if (neighbors.Any(n => allUnits.Any(u => u.standOnTile == n && u.teamType != UnitSelector.currentUnit.teamType)))
+            // coord-equality for neighbor-enemy filtering
+            var neighborPos = new HashSet<Vector2Int>(neighbors.Select(n => n.grid2DLocation));
+
+            bool hasEnemyNearby = allUnits.Any(u => u != null
+                && u.teamType != UnitSelector.currentUnit.teamType
+                && u.standOnTile != null
+                && neighborPos.Contains(u.standOnTile.grid2DLocation));
+
+            if (hasEnemyNearby)
             {
                 valid.Add(tile);
             }
         }
+
+        // observe how many prep tiles survived neighbor filter
+        Debug.Log($"[ATTACK_VIS] validPrepTiles={valid?.Count ?? 0}");
 
         return valid;
     }

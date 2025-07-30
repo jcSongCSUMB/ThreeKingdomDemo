@@ -221,8 +221,11 @@ public class TurnSystem : MonoBehaviour
     // Mark all tiles occupied by enemy units as turn‑blocked
     private void MarkEnemyTilesAsTurnBlocked()
     {
+        // UPDATED 2025-07-30: add null guards to avoid re-marking released tiles for dying units
         foreach (BaseUnit unit in allUnits)
-            if (unit.teamType == UnitTeam.Enemy && unit.standOnTile != null)
+            if (unit != null && unit.gameObject != null
+                && unit.teamType == UnitTeam.Enemy
+                && unit.standOnTile != null)
                 unit.standOnTile.MarkAsTurnBlocked();
     }
 

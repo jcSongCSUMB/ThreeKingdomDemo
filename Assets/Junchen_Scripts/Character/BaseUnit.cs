@@ -91,6 +91,9 @@ public class BaseUnit : MonoBehaviour
         {
             standOnTile.UnmarkTurnBlocked();   // clear full‑turn block
             standOnTile.UnmarkTempBlocked();   // clear any temp block + visual
+
+            // UPDATED 2025-07-30: cut the link to prevent re-marking in next phase
+            standOnTile = null;
         }
 
         // Play death animation if assigned
