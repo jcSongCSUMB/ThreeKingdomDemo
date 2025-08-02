@@ -15,18 +15,14 @@ public class EnemyDeploymentManager : MonoBehaviour
     private void Awake()
     {
         if (Instance != null && Instance != this)
-        {
             Destroy(gameObject);
-        }
         else
-        {
             Instance = this;
-        }
     }
 
     public void AutoDeployEnemies()
     {
-        Debug.Log("[EnemyDeploy] Starting auto-deploy of enemy units...");
+        Debug.Log("[EnemyDeploy] Starting auto-deploy of enemy units…");
 
         List<OverlayTile> candidateTiles = MapManager.Instance.map.Values
             .Where(tile => tile.isEnemyDeployZone && !tile.isBlocked)
@@ -48,21 +44,16 @@ public class EnemyDeploymentManager : MonoBehaviour
             tile.MarkAsTurnBlocked();
 
             CharacterInfo info = enemy.GetComponent<CharacterInfo>();
-            if (info != null)
-            {
-                info.standOnTile = tile;
-            }
+            if (info != null) info.standOnTile = tile;
 
             BaseUnit unit = enemy.GetComponent<BaseUnit>();
-            if (unit != null)
-            {
-                unit.standOnTile = tile;
-            }
+            if (unit != null) unit.standOnTile = tile;
 
             // Register deployed enemy in UnitDeployManager
             UnitDeployManager.Instance.RegisterDeployedUnit(enemy);
-
-            Debug.Log($"[EnemyDeploy] Enemy unit deployed at tile: {tile.gridLocation}");
         }
+
+        // UPDATED 2025-08-02: add concise summary
+        Debug.Log($"[EnemyDeploy] Auto-deploy finished. Deployed {deployCount} enemy units.");
     }
 }

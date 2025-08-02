@@ -16,6 +16,8 @@ public enum PlannerMode
 //
 // UPDATED 2025-07-27: Allow resetting to None even without a selected unit.
 // Added ForceCancel() to perform a safe global cancel from callers (e.g., UnitSelector).
+//
+// UPDATED 2025-08-01: unified enemy-neighbor check to coordinate compare, pruned logs, added concise comments.
 
 public class TileClickPathPlanner : MonoBehaviour
 {
@@ -39,19 +41,16 @@ public class TileClickPathPlanner : MonoBehaviour
     // Public accessor for highlighted tiles
     public List<OverlayTile> HighlightedTiles => currentRangeTiles;
 
-    // ===== DEBUG TAGS =====
-    private const string LOG_MODE  = "[MODE]";
-    private const string LOG_CANCEL = "[CANCEL]";
+    // -------- Utility methods --------
 
-    // VISUAL-ONLY: clear highlights/arrows (does NOT touch any tile flags)
+    // Clears all tile highlights and path arrows
     public void ClearAllHighlights()
     {
         ClearPreviousRangeTiles();
         ClearPathVisual();
-        // NOTE: No unmark here. Use ReleaseCurrentUnitPlanning() when you need to free a reserved tile.
     }
 
-    // Release current unit's planned destination (Temp + Turn safety) and optionally clear visuals
+    // Releases the current unit’s reserved tile and optionally clears visuals
     public void ReleaseCurrentUnitPlanning(bool clearHighlights = true)
     {
         BaseUnit unit = currentUnit ?? UnitSelector.currentUnit;
@@ -60,23 +59,16 @@ public class TileClickPathPlanner : MonoBehaviour
             OverlayTile lastTile = unit.plannedPath.Last();
             if (lastTile != null)
             {
-                lastTile.UnmarkTempBlocked();   // free temp claim
-                lastTile.UnmarkTurnBlocked();   // safety: clear any legacy turn block
-                Debug.Log($"[Planner] Released planning tile {lastTile.grid2DLocation} for {unit.name}.");
+                lastTile.UnmarkTempBlocked();
+                lastTile.UnmarkTurnBlocked();
             }
         }
-
-        if (clearHighlights)
-        {
-            ClearAllHighlights();
-        }
+        if (clearHighlights) ClearAllHighlights();
     }
 
-    // ===== PATCHED: SetPlannerMode =====
-    // Allow resetting to None even without a selected unit.
+    // Sets the planner mode; can always reset to None
     public void SetPlannerMode(PlannerMode mode)
     {
-        // Planner mode is meaningful only in PlayerPlanning phase
         if (!TurnSystem.Instance.IsPlanningPhase())
         {
             Debug.Log("[Planner] Cannot set mode, not in planning phase");
@@ -85,60 +77,45 @@ public class TileClickPathPlanner : MonoBehaviour
 
         var old = plannerMode;
 
-        // Always allow falling back to None (even if no current unit)
+        // Always allow clearing
         if (mode == PlannerMode.None)
         {
-            try { ClearAllHighlights(); } catch { /* safety */ }
+            ClearAllHighlights();
             plannerMode = PlannerMode.None;
-            Debug.Log($"{LOG_MODE} {old} -> None (allowed without currentUnit)");
             return;
         }
 
-        // For non-None modes, require a selected unit
         BaseUnit unit = currentUnit ?? UnitSelector.currentUnit;
         if (unit == null)
         {
-            Debug.LogWarning($"{LOG_MODE} early-return: currentUnit==null for {mode}, keep={plannerMode}");
+            Debug.LogWarning($"[Planner] No unit selected for mode {mode}");
             return;
         }
 
-        // Reset visuals before showing new range
         ClearPreviousRangeTiles();
         ClearPathVisual();
 
         plannerMode = mode;
-        Debug.Log($"{LOG_MODE} {old} -> {plannerMode}");
 
         if (plannerMode == PlannerMode.Move || plannerMode == PlannerMode.Attack)
-        {
             ShowMovementRange(unit);
-        }
     }
 
-    // Public helper for callers that need a robust global cancel (no new script required).
-    // Optionally releases current unit's temporary plan (Temp/Turn safety) and clears visuals.
+    // Cancels current planning state
     public void ForceCancel(bool releaseCurrentPlanning = true)
     {
-        if (releaseCurrentPlanning)
-        {
-            try { ReleaseCurrentUnitPlanning(true); } catch { /* safety */ }
-        }
-        else
-        {
-            try { ClearAllHighlights(); } catch { /* safety */ }
-        }
+        if (releaseCurrentPlanning) ReleaseCurrentUnitPlanning(true);
+        else ClearAllHighlights();
 
         plannerMode = PlannerMode.None;
-        Debug.Log($"{LOG_CANCEL} plannerMode => None");
     }
 
-    // Allow external systems to assign the current unit
-    public void SetCurrentUnit(BaseUnit unit)
-    {
-        currentUnit = unit;
-    }
+    // Allows external scripts to assign the current unit
+    public void SetCurrentUnit(BaseUnit unit) => currentUnit = unit;
 
-    // Highlights all tiles reachable based on unit's AP and current planner mode
+    // -------- Range & visual helpers --------
+
+    // Shows move or attack range tiles based on current mode
     private void ShowMovementRange(BaseUnit unit)
     {
         currentRangeTiles = rangeFinder.GetTilesInRange(unit, plannerMode);
@@ -150,62 +127,41 @@ public class TileClickPathPlanner : MonoBehaviour
 
             foreach (OverlayTile tile in currentRangeTiles)
             {
-                // 8-direction neighbor check against enemies
+                // UPDATED 2025-08-01: use coordinate compare instead of reference equality
                 var neighbors = MapManager.Instance.GetSurroundingTilesEightDirections(tile.grid2DLocation);
                 bool hasEnemyNearby = neighbors.Any(n =>
-                    allUnits.Any(u => u.standOnTile == n && u.teamType != unit.teamType));
+                    allUnits.Any(u =>
+                        u.standOnTile != null &&
+                        u.standOnTile.grid2DLocation == n.grid2DLocation &&
+                        u.teamType != unit.teamType)); // enemy check by team
 
-                if (hasEnemyNearby)
-                {
-                    filtered.Add(tile);
-                }
+                if (hasEnemyNearby) filtered.Add(tile);
             }
 
             currentRangeTiles = filtered;
-
-            foreach (var tile in currentRangeTiles)
-            {
-                tile.ShowTile();
-            }
-
-            Debug.Log($"[Planner] Showing legal attack prep tiles: {currentRangeTiles.Count}");
-            return;
         }
 
-        // Default for Move/others
-        foreach (var tile in currentRangeTiles)
-        {
-            tile.ShowTile();
-        }
-
-        Debug.Log($"[Planner] Showing movement range tiles: {currentRangeTiles.Count}");
+        foreach (var tile in currentRangeTiles) tile.ShowTile();
     }
 
     // Hides previously highlighted tiles
     private void ClearPreviousRangeTiles()
     {
-        foreach (var tile in currentRangeTiles)
-        {
-            tile.HideTile();
-        }
+        foreach (var tile in currentRangeTiles) tile.HideTile();
         currentRangeTiles.Clear();
     }
 
-    // Clears any path arrow sprites shown for hover preview
+    // Clears live path preview arrows
     private void ClearPathVisual()
     {
-        foreach (var tile in currentHoverPath)
-        {
-            tile.SetSprite(ArrowTranslator.ArrowDirection.None);
-        }
+        foreach (var tile in currentHoverPath) tile.SetSprite(ArrowTranslator.ArrowDirection.None);
         currentHoverPath.Clear();
     }
 
-    // Live path preview (Move mode only)
+    // -------- Live hover path preview (Move mode only) --------
     private void Update()
     {
-        if (plannerMode != PlannerMode.Move || !TurnSystem.Instance.IsPlanningPhase())
-            return;
+        if (plannerMode != PlannerMode.Move || !TurnSystem.Instance.IsPlanningPhase()) return;
 
         BaseUnit unit = currentUnit ?? UnitSelector.currentUnit;
         if (unit == null) return;
@@ -225,26 +181,21 @@ public class TileClickPathPlanner : MonoBehaviour
                 {
                     var previous = i > 0 ? path[i - 1] : unit.standOnTile;
                     var next = i < path.Count - 1 ? path[i + 1] : null;
-                    var direction = arrowTranslator.TranslateDirection(previous, path[i], next);
-                    path[i].SetSprite(direction);
+                    var dir = arrowTranslator.TranslateDirection(previous, path[i], next);
+                    path[i].SetSprite(dir);
                 }
-
                 currentHoverPath = path;
             }
         }
     }
 
-    // Raycast to the tile under the mouse cursor
+    // Raycasts to find the tile under the mouse cursor
     private OverlayTile GetTileUnderMouse()
     {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 pos2D = new Vector2(worldPos.x, worldPos.y);
 
-        RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-        if (hit.collider != null)
-        {
-            return hit.collider.GetComponent<OverlayTile>();
-        }
-        return null;
+        RaycastHit2D hit = Physics2D.Raycast(pos2D, Vector2.zero);
+        return hit.collider != null ? hit.collider.GetComponent<OverlayTile>() : null;
     }
 }

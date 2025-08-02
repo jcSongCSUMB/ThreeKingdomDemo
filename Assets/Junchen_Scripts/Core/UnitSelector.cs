@@ -63,8 +63,6 @@ public class UnitSelector : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
             if (hit.collider != null)
             {
-                Debug.Log($"[Selector] Clicked object: {hit.collider.name}");
-
                 OverlayTile tile = hit.collider.GetComponent<OverlayTile>();
                 if (tile != null)
                 {
@@ -104,25 +102,17 @@ public class UnitSelector : MonoBehaviour
 
                         // Hide panel if no unit selected
                         if (panel != null)
-                        {
                             panel.Hide();
-                        }
 
                         // Clear planner state
                         if (planner != null)
-                        {
                             planner.SetPlannerMode(PlannerMode.None);
-                        }
                     }
                 }
                 else
                 {
                     Debug.Log("[Selector] Clicked object is not an OverlayTile.");
                 }
-            }
-            else
-            {
-                Debug.Log("[Selector] Nothing hit by Raycast.");
             }
         }
     }

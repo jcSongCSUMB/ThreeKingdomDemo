@@ -39,14 +39,12 @@ public class AttackPlannerInputHandler : MonoBehaviour
             // Ignore clicks on UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
-                Debug.Log("[AttackPlanner] Click ignored — pointer is over UI");
                 return;
             }
 
             OverlayTile clickedTile = GetHoveredTile();
             if (clickedTile == null)
             {
-                Debug.Log("[AttackPlanner] No tile under mouse");
                 return;
             }
 
@@ -195,7 +193,6 @@ public class AttackPlannerInputHandler : MonoBehaviour
 
         if (enemy == null)
         {
-            Debug.Log("[AttackPlanner] No enemy unit on selected tile.");
             return;
         }
 
@@ -232,9 +229,6 @@ public class AttackPlannerInputHandler : MonoBehaviour
                 valid.Add(tile);
             }
         }
-
-        // observe how many prep tiles survived neighbor filter
-        Debug.Log($"[ATTACK_VIS] validPrepTiles={valid?.Count ?? 0}");
 
         return valid;
     }

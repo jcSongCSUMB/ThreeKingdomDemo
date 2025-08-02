@@ -41,7 +41,6 @@ public class TurnSystem : MonoBehaviour
         if (!allUnits.Contains(unit))
         {
             allUnits.Add(unit);
-            Debug.Log($"[TurnSystem] Registered unit: {unit.name}");
         }
     }
 
@@ -50,7 +49,6 @@ public class TurnSystem : MonoBehaviour
         if (allUnits.Contains(unit))
         {
             allUnits.Remove(unit);
-            Debug.Log($"[TurnSystem] Removed unit: {unit.name}");
         }
     }
 
@@ -99,17 +97,8 @@ public class TurnSystem : MonoBehaviour
 
                 // Switch allUnits to player list for the new planning phase 
                 allUnits = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
-                Debug.Log($"[TurnSystem] Refreshed allUnits for PlayerPlanning. Count: {allUnits.Count}");
-
-                // Debug: log flag before reset
-                foreach (var unit in allUnits)
-                    Debug.Log($"[TurnSystem] Before Reset - {unit.name}: hasFinishedAction = {unit.hasFinishedAction}");
 
                 ResetUnitStates(UnitTeam.Player);
-
-                // Debug: log flag after reset
-                foreach (var unit in allUnits)
-                    Debug.Log($"[TurnSystem] After Reset  - {unit.name}: hasFinishedAction = {unit.hasFinishedAction}");
 
                 ClearAllPlayerPlans();
                 RemoveAllTemporaryDefenseBonuses();
@@ -131,7 +120,6 @@ public class TurnSystem : MonoBehaviour
     // Start the Coroutine to execute enemy unit actions
     private void StartEnemyExecutionPhase()
     {
-        Debug.Log("[TurnSystem] Starting EnemyExecutionPhase Coroutine");
         StartCoroutine(EnemyExecutor.Execute(allUnits));
     }
 
