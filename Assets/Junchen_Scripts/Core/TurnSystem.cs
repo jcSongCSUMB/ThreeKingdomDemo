@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// UPDATED 2025‑07‑20: add Turn‑block rebuild for all live units at the start of each
-// PlayerPlanning phase to prevent same‑turn overlapping.
-// UPDATED 2025‑07‑26: add end‑of‑phase win/lose detection (no UI yet, Debug.Log only).
-
+// --------------------------------------------------------------
+// Turn system phases
+// --------------------------------------------------------------
 public enum TurnPhase
 {
     PlayerPlanning,
@@ -24,6 +23,14 @@ public class TurnSystem : MonoBehaviour
     private List<BaseUnit> allUnits = new List<BaseUnit>();
     private int executingIndex = 0;
 
+    // ====== battle-end bookkeeping ======
+    // reference to the result-panel controller (drag in Inspector)
+    [SerializeField] private BattleResultUIController battleResultUI;
+    private bool resultShown = false;       // ensure single win/lose trigger
+    private int initialPlayerCount;
+    private int initialEnemyCount;
+    // ========================================
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -32,26 +39,26 @@ public class TurnSystem : MonoBehaviour
 
     private void Start()
     {
-        // Ensure enemy tiles are marked as turn‑blocked at the very first PlayerPlanning phase
+        // cache initial counts for future stats (loss numbers)
+        initialPlayerCount = UnitDeployManager.Instance.GetAllDeployedPlayerUnits().Count;
+        initialEnemyCount  = UnitDeployManager.Instance.GetAllDeployedEnemyUnits().Count;
+
+        // keep enemy tiles blocked at first planning phase
         MarkEnemyTilesAsTurnBlocked();
     }
 
     public void RegisterUnit(BaseUnit unit)
     {
         if (!allUnits.Contains(unit))
-        {
             allUnits.Add(unit);
-        }
     }
 
     public void RemoveUnit(BaseUnit unit)
     {
         if (allUnits.Contains(unit))
-        {
             allUnits.Remove(unit);
-        }
     }
-
+    
     // Transition to the next phase of the turn cycle
     public void NextPhase()
     {
@@ -60,7 +67,6 @@ public class TurnSystem : MonoBehaviour
         switch (currentPhase)
         {
             case TurnPhase.PlayerPlanning:
-                // finalize player planning: convert temp blocks to turn‑blocks and clean up
                 PlayerPlanning_EndTransformTempToTurn();
                 currentPhase = TurnPhase.PlayerExecuting;
                 Debug.Log("[TurnSystem] Switching to PlayerExecuting phase.");
@@ -69,7 +75,6 @@ public class TurnSystem : MonoBehaviour
                 break;
 
             case TurnPhase.PlayerExecuting:
-                // NEW: end‑of‑phase win/lose detection (stop before entering EnemyTurn)
                 if (TryEndBattleIfOneSideEliminated()) return;
 
                 currentPhase = TurnPhase.EnemyTurn;
@@ -79,51 +84,79 @@ public class TurnSystem : MonoBehaviour
                 break;
 
             case TurnPhase.EnemyTurn:
-                // NEW: end‑of‑phase win/lose detection (stop before rebuilding planning state)
                 if (TryEndBattleIfOneSideEliminated()) return;
 
                 currentPhase = TurnPhase.PlayerPlanning;
                 currentTurn++;
                 Debug.Log("[TurnSystem] Switching to PlayerPlanning phase.");
 
-                // Full‑turn housekeeping
-                ClearAllTempBlocked_FULL();    // ensure no temp carry‑over
-                ClearAllTurnBlockedTiles();    // remove previous turn‑blocks
-
-                // mark every live unit's current tile as TurnBlocked (player + enemy)
+                ClearAllTempBlocked_FULL();
+                ClearAllTurnBlockedTiles();
                 MarkAllLiveUnitsTilesAsTurnBlocked();
+                MarkEnemyTilesAsTurnBlocked();
 
-                MarkEnemyTilesAsTurnBlocked(); // keep enemy tiles blocked for planning visuals
-
-                // Switch allUnits to player list for the new planning phase 
                 allUnits = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
-
                 ResetUnitStates(UnitTeam.Player);
-
                 ClearAllPlayerPlans();
                 RemoveAllTemporaryDefenseBonuses();
-                ClearAllTempBlockedTiles();    // legacy light clear (visual only)
-
-                // Rebind standOnTile references to MapManager overlay tiles
+                ClearAllTempBlockedTiles();
                 RebindAllUnitsToCurrentTiles();
                 break;
         }
     }
-
-    // Start the Coroutine to execute player unit actions
-    private void StartPlayerExecutionPhase()
+    
+    // single entry point for win/lose detection
+    private bool TryEndBattleIfOneSideEliminated()
     {
-        Debug.Log("[TurnSystem] Starting PlayerExecutionPhase Coroutine");
+        if (resultShown) return true;   // already resolved
+
+        int players = 0, enemies = 0;
+        foreach (var u in FindObjectsOfType<BaseUnit>())
+        {
+            if (u == null || u.gameObject == null) continue;
+            if (u.teamType == UnitTeam.Player) players++;
+            else if (u.teamType == UnitTeam.Enemy) enemies++;
+        }
+
+        if (players == 0)
+        {
+            resultShown = true;
+
+            BattleStats stats;
+            stats.playerUnitsLost = initialPlayerCount;                  // all lost
+            stats.enemyUnitsLost  = initialEnemyCount - enemies;         // remaining enemy count is 0
+
+            if (battleResultUI != null)
+                battleResultUI.Show(BattleOutcome.Defeat, stats);
+
+            battleStarted = false;
+            return true;
+        }
+
+        if (enemies == 0)
+        {
+            resultShown = true;
+
+            BattleStats stats;
+            stats.playerUnitsLost = initialPlayerCount - players;        // remaining player count is 0
+            stats.enemyUnitsLost  = initialEnemyCount;                   // all lost
+
+            if (battleResultUI != null)
+                battleResultUI.Show(BattleOutcome.Victory, stats);
+
+            battleStarted = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    private void StartPlayerExecutionPhase() =>
         StartCoroutine(PlayerExecutor.Execute(allUnits));
-    }
 
-    // Start the Coroutine to execute enemy unit actions
-    private void StartEnemyExecutionPhase()
-    {
+    private void StartEnemyExecutionPhase() =>
         StartCoroutine(EnemyExecutor.Execute(allUnits));
-    }
 
-    // Reset action status for all units belonging to the given team
     private void ResetUnitStates(UnitTeam team)
     {
         foreach (BaseUnit unit in allUnits)
@@ -132,7 +165,6 @@ public class TurnSystem : MonoBehaviour
 
     public bool IsPlanningPhase() => currentPhase == TurnPhase.PlayerPlanning;
 
-    // Clear all saved plans (movement, action, target) for player units
     private void ClearAllPlayerPlans()
     {
         foreach (BaseUnit unit in allUnits)
@@ -144,19 +176,16 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // Remove temporary defense bonuses at the end of the enemy turn
     private void RemoveAllTemporaryDefenseBonuses()
     {
         foreach (BaseUnit unit in allUnits)
         {
             if (unit.teamType != UnitTeam.Player || unit.tempDefenseBonus <= 0) continue;
             unit.defensePower -= unit.tempDefenseBonus;
-            Debug.Log($"[TurnSystem] Removed defense bonus for {unit.name}. New defensePower: {unit.defensePower}");
             unit.tempDefenseBonus = 0;
         }
     }
 
-    // Convert all player planning TEMP blocks into TURN blocks at end of planning phase.
     private void PlayerPlanning_EndTransformTempToTurn()
     {
         List<BaseUnit> players = UnitDeployManager.Instance.GetAllDeployedPlayerUnits();
@@ -175,41 +204,35 @@ public class TurnSystem : MonoBehaviour
             finalTiles.Add(dest);
         }
 
-        // clear any remaining temp blocks globally
         foreach (var tile in FindObjectsOfType<OverlayTile>())
             if (!finalTiles.Contains(tile) && tile.isTempBlocked) tile.UnmarkTempBlocked();
     }
 
-    // Aggressively clear ALL temp‑block flags on every tile (used at new planning phase)
     private void ClearAllTempBlocked_FULL()
     {
         foreach (OverlayTile tile in FindObjectsOfType<OverlayTile>())
             if (tile.isTempBlocked || tile.tempBlockedByPlanning) tile.UnmarkTempBlocked();
     }
 
-    // Legacy light clear of temp visuals
     private void ClearAllTempBlockedTiles()
     {
         foreach (OverlayTile tile in FindObjectsOfType<OverlayTile>())
             if (tile.tempBlockedByPlanning) { tile.tempBlockedByPlanning = false; tile.SetToDefaultSprite(); }
     }
 
-    // Mark all tiles occupied by enemy units as temporarily blocked (legacy visual helper)
     private void MarkEnemyTilesAsBlocked()
     {
         foreach (BaseUnit unit in allUnits)
             if (unit.teamType == UnitTeam.Enemy && unit.standOnTile != null)
             {
-                unit.standOnTile.isTempBlocked       = true;
+                unit.standOnTile.isTempBlocked = true;
                 unit.standOnTile.tempBlockedByPlanning = true;
                 unit.standOnTile.ShowAsTempBlocked();
             }
     }
 
-    // Mark all tiles occupied by enemy units as turn‑blocked
     private void MarkEnemyTilesAsTurnBlocked()
     {
-        // UPDATED 2025-07-30: add null guards to avoid re-marking released tiles for dying units
         foreach (BaseUnit unit in allUnits)
             if (unit != null && unit.gameObject != null
                 && unit.teamType == UnitTeam.Enemy
@@ -217,14 +240,12 @@ public class TurnSystem : MonoBehaviour
                 unit.standOnTile.MarkAsTurnBlocked();
     }
 
-    // Clear all turn‑blocked flags on all tiles at the start of each full turn
     private void ClearAllTurnBlockedTiles()
     {
         foreach (OverlayTile tile in FindObjectsOfType<OverlayTile>())
             tile.UnmarkTurnBlocked();
     }
 
-    // Rebind all units' standOnTile to MapManager's current overlay tiles
     private void RebindAllUnitsToCurrentTiles()
     {
         foreach (var unit in allUnits)
@@ -236,40 +257,10 @@ public class TurnSystem : MonoBehaviour
         }
     }
 
-    // mark every live unit's current tile as TurnBlocked (player + enemy)
     private void MarkAllLiveUnitsTilesAsTurnBlocked()
     {
         foreach (BaseUnit u in FindObjectsOfType<BaseUnit>())
             if (u != null && u.gameObject != null && u.standOnTile != null)
                 u.standOnTile.MarkAsTurnBlocked();
-    }
-
-    // end‑of‑phase win/lose detection
-    private bool TryEndBattleIfOneSideEliminated()
-    {
-        int players = 0, enemies = 0;
-
-        foreach (var u in FindObjectsOfType<BaseUnit>())
-        {
-            if (u == null || u.gameObject == null) continue;
-            if (u.teamType == UnitTeam.Player) players++;
-            else if (u.teamType == UnitTeam.Enemy) enemies++;
-        }
-
-        if (players == 0)
-        {
-            Debug.Log("[Battle] PlayerLose — all player units are eliminated. (TODO: show result panel)");
-            battleStarted = false;
-            return true;
-        }
-
-        if (enemies == 0)
-        {
-            Debug.Log("[Battle] PlayerWin — all enemy units are eliminated. (TODO: show result panel)");
-            battleStarted = false;
-            return true;
-        }
-
-        return false;
     }
 }
