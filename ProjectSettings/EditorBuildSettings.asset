@@ -4,5 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Junchen_Scenes/StartMenu.unity
+    guid: 616218c25116f1d4aa575835ca5a7867
+  - enabled: 1
+    path: Assets/Junchen_Scenes/BattleTestLevel.unity
+    guid: d1390871f0e92ea4aa23ae41aa30bbf0
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0

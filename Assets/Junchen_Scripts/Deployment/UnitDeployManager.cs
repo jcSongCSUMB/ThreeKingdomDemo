@@ -47,14 +47,24 @@ public class UnitDeployManager : MonoBehaviour
     {
         selectedUnitPrefab = null;
 
-        // NEW: Hide deploy zones when selection is cleared
+        // Hide deploy zones when selection is cleared
         MapManager.Instance.HideDeployZones();
     }
 
     // Registers a unit after it's deployed so we can clear it later
     public void RegisterDeployedUnit(GameObject unit)
     {
-        deployedUnits.Add(unit);
+        if (unit == null) return;
+        // Avoid duplicates to keep counts sane
+        if (!deployedUnits.Contains(unit))
+        {
+            deployedUnits.Add(unit);
+            Debug.Log("[DeployManager] Registered unit."); // TEMP
+        }
+        else
+        {
+            Debug.Log("[DeployManager] Register skipped (already present)."); // TEMP
+        }
     }
 
     // Destroys all deployed units and clears the list
@@ -79,6 +89,12 @@ public class UnitDeployManager : MonoBehaviour
     {
         // Unity overrides == for destroyed objects so a simple null check works.
         return go == null;
+    }
+
+    // Is this BaseUnit considered "alive"? (exists and health > 0)
+    private bool IsAlive(BaseUnit bu)
+    {
+        return bu != null && bu.gameObject != null && bu.health > 0;
     }
 
     // Remove destroyed objects that belong to the Player team.
@@ -127,12 +143,15 @@ public class UnitDeployManager : MonoBehaviour
         List<BaseUnit> playerUnits = new List<BaseUnit>();
         foreach (var unit in deployedUnits)
         {
-            BaseUnit baseUnit = unit.GetComponent<BaseUnit>();
-            if (baseUnit != null && baseUnit.teamType == UnitTeam.Player)
+            BaseUnit baseUnit = unit != null ? unit.GetComponent<BaseUnit>() : null;
+            if (baseUnit != null && baseUnit.teamType == UnitTeam.Player && IsAlive(baseUnit))
             {
                 playerUnits.Add(baseUnit);
             }
         }
+
+        // TEMP DEBUG
+        Debug.Log($"[UDM/GetP] listCount={deployedUnits.Count}, aliveCount={playerUnits.Count}");
         return playerUnits;
     }
     
@@ -148,12 +167,15 @@ public class UnitDeployManager : MonoBehaviour
         List<BaseUnit> enemyUnits = new List<BaseUnit>();
         foreach (var unit in deployedUnits)
         {
-            BaseUnit baseUnit = unit.GetComponent<BaseUnit>();
-            if (baseUnit != null && baseUnit.teamType == UnitTeam.Enemy)
+            BaseUnit baseUnit = unit != null ? unit.GetComponent<BaseUnit>() : null;
+            if (baseUnit != null && baseUnit.teamType == UnitTeam.Enemy && IsAlive(baseUnit)) // UPDATED 2025-08-06
             {
                 enemyUnits.Add(baseUnit);
             }
         }
+
+        // TEMP DEBUG
+        Debug.Log($"[UDM/GetE] listCount={deployedUnits.Count}, aliveCount={enemyUnits.Count}");
         return enemyUnits;
     }
     
@@ -172,12 +194,14 @@ public class UnitDeployManager : MonoBehaviour
             return bu != null && bu.teamType == UnitTeam.Player;
         });
 
-        // Add updated player units
+        // Add updated player units (dedup by reference just in case)
         foreach (var unit in playerUnits)
         {
             if (unit != null)
             {
-                deployedUnits.Add(unit.gameObject);
+                var go = unit.gameObject;
+                if (!deployedUnits.Contains(go))
+                    deployedUnits.Add(go);
             }
         }
 

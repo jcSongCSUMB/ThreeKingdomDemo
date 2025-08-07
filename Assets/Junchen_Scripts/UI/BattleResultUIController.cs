@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;                         // ← 新增
+using TMPro;
 
 public class BattleResultUIController : MonoBehaviour
 {
@@ -15,6 +15,9 @@ public class BattleResultUIController : MonoBehaviour
     [SerializeField] private Button restartBtn;
     [SerializeField] private Button quitBtn;
 
+    [Header("Scenes")]
+    [SerializeField] private string startMenuSceneName = "StartMenu";
+
     private void Awake()
     {
         cg.alpha = 0f;
@@ -27,6 +30,9 @@ public class BattleResultUIController : MonoBehaviour
 
     public void Show(BattleOutcome outcome, in BattleStats stats)
     {
+        // TEMP DEBUG
+        Debug.Log($"[UI/SHOW] outcome={outcome}, lossTextPreview=Lost {stats.playerUnitsLost} / {stats.enemyUnitsLost}");
+
         cardImage.sprite = outcome == BattleOutcome.Victory ? victorySprite : defeatSprite;
         lossText.SetText($"Lost {stats.playerUnitsLost} / {stats.enemyUnitsLost}");
         StartCoroutine(FadeIn());
@@ -52,5 +58,5 @@ public class BattleResultUIController : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
 
     private void OnQuit() =>
-        Debug.Log("// TODO: Quit to Start-Menu scene");
+        UnityEngine.SceneManagement.SceneManager.LoadScene(startMenuSceneName);
 }

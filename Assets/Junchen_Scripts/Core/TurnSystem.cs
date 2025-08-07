@@ -24,11 +24,13 @@ public class TurnSystem : MonoBehaviour
     private int executingIndex = 0;
 
     // ====== battle-end bookkeeping ======
-    // reference to the result-panel controller (drag in Inspector)
     [SerializeField] private BattleResultUIController battleResultUI;
     private bool resultShown = false;       // ensure single win/lose trigger
     private int initialPlayerCount;
     private int initialEnemyCount;
+
+    // capture initial counts once, at the real start of battle
+    private bool initialCaptured = false;
     // ========================================
 
     private void Awake()
@@ -39,10 +41,6 @@ public class TurnSystem : MonoBehaviour
 
     private void Start()
     {
-        // cache initial counts for future stats (loss numbers)
-        initialPlayerCount = UnitDeployManager.Instance.GetAllDeployedPlayerUnits().Count;
-        initialEnemyCount  = UnitDeployManager.Instance.GetAllDeployedEnemyUnits().Count;
-
         // keep enemy tiles blocked at first planning phase
         MarkEnemyTilesAsTurnBlocked();
     }
@@ -58,7 +56,19 @@ public class TurnSystem : MonoBehaviour
         if (allUnits.Contains(unit))
             allUnits.Remove(unit);
     }
-    
+
+    // capture initial counts once, using deploy manager as source of truth
+    private void EnsureInitialCaptured()
+    {
+        if (initialCaptured) return;
+        initialPlayerCount = UnitDeployManager.Instance.GetAllDeployedPlayerUnits().Count;
+        initialEnemyCount  = UnitDeployManager.Instance.GetAllDeployedEnemyUnits().Count;
+        initialCaptured = true;
+
+        // TEMP DEBUG // UPDATED 2025-08-06
+        Debug.Log($"[INIT@Plan] initP={initialPlayerCount}, initE={initialEnemyCount}, phase={currentPhase}");
+    }
+
     // Transition to the next phase of the turn cycle
     public void NextPhase()
     {
@@ -67,6 +77,9 @@ public class TurnSystem : MonoBehaviour
         switch (currentPhase)
         {
             case TurnPhase.PlayerPlanning:
+                // first time we leave Planning, capture initial counts once
+                EnsureInitialCaptured();
+
                 PlayerPlanning_EndTransformTempToTurn();
                 currentPhase = TurnPhase.PlayerExecuting;
                 Debug.Log("[TurnSystem] Switching to PlayerExecuting phase.");
@@ -101,33 +114,42 @@ public class TurnSystem : MonoBehaviour
                 RemoveAllTemporaryDefenseBonuses();
                 ClearAllTempBlockedTiles();
                 RebindAllUnitsToCurrentTiles();
+
+                // extra safety: check once more right after enemy turn finishes
+                if (TryEndBattleIfOneSideEliminated()) return;
+
                 break;
         }
     }
-    
+
     // single entry point for win/lose detection
     private bool TryEndBattleIfOneSideEliminated()
     {
         if (resultShown) return true;   // already resolved
 
-        int players = 0, enemies = 0;
-        foreach (var u in FindObjectsOfType<BaseUnit>())
-        {
-            if (u == null || u.gameObject == null) continue;
-            if (u.teamType == UnitTeam.Player) players++;
-            else if (u.teamType == UnitTeam.Enemy) enemies++;
-        }
+        // if for any reason we haven't captured initial counts yet, do it now (once)
+        EnsureInitialCaptured();
+
+        // use deploy manager lists as the single source of truth (alive units only)
+        int players = UnitDeployManager.Instance.GetAllDeployedPlayerUnits().Count;
+        int enemies = UnitDeployManager.Instance.GetAllDeployedEnemyUnits().Count;
+
+        // TEMP DEBUG
+        Debug.Log($"[ENDCHK] aliveP={players}, aliveE={enemies}, initP={initialPlayerCount}, initE={initialEnemyCount}, phase={currentPhase}");
 
         if (players == 0)
         {
             resultShown = true;
 
             BattleStats stats;
-            stats.playerUnitsLost = initialPlayerCount;                  // all lost
-            stats.enemyUnitsLost  = initialEnemyCount - enemies;         // remaining enemy count is 0
+            stats.playerUnitsLost = initialPlayerCount;                        // all lost
+            stats.enemyUnitsLost  = Mathf.Max(0, initialEnemyCount - enemies); // clamp >= 0
+
+            // TEMP DEBUG
+            Debug.Log($"[SHOW] outcome=Defeat, lostP={stats.playerUnitsLost}, lostE={stats.enemyUnitsLost}");
 
             if (battleResultUI != null)
-                battleResultUI.Show(BattleOutcome.Defeat, stats);
+                battleResultUI.Show(BattleOutcome.Defeat, in stats);
 
             battleStarted = false;
             return true;
@@ -138,11 +160,14 @@ public class TurnSystem : MonoBehaviour
             resultShown = true;
 
             BattleStats stats;
-            stats.playerUnitsLost = initialPlayerCount - players;        // remaining player count is 0
-            stats.enemyUnitsLost  = initialEnemyCount;                   // all lost
+            stats.playerUnitsLost = Mathf.Max(0, initialPlayerCount - players); // clamp >= 0
+            stats.enemyUnitsLost  = initialEnemyCount;                          // all lost
+
+            // TEMP DEBUG // UPDATED 2025-08-06
+            Debug.Log($"[SHOW] outcome=Victory, lostP={stats.playerUnitsLost}, lostE={stats.enemyUnitsLost}");
 
             if (battleResultUI != null)
-                battleResultUI.Show(BattleOutcome.Victory, stats);
+                battleResultUI.Show(BattleOutcome.Victory, in stats);
 
             battleStarted = false;
             return true;
