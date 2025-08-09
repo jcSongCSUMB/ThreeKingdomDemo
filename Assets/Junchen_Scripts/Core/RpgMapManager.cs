@@ -13,23 +13,15 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public class RpgMapManager : MonoBehaviour
 {
-    // Overlay prefab used to create overlay tiles
-    public GameObject overlayPrefab;
+    public GameObject overlayPrefab; // Overlay prefab used to create overlay tiles
+    public GameObject overlayContainer; // Parent transform for overlay tiles
+    public bool ignoreBottomTiles = false; // If true, skip z == 0 cells when building overlays
 
-    // Parent transform for overlay tiles
-    public GameObject overlayContainer;
+    public Dictionary<Vector2Int, OverlayTile> map; // (x,y) -> OverlayTile (topmost only)
 
-    // If true, skip z == 0 cells when building overlays
-    public bool ignoreBottomTiles = false;
+    public bool IsBuilt { get; private set; } = false; // Build state flag
 
-    // (x,y) -> OverlayTile (topmost only)
-    public Dictionary<Vector2Int, OverlayTile> map;
-
-    // Build state
-    public bool IsBuilt { get; private set; } = false;
-
-    // Optional event for other systems
-    public event Action OnBuilt;
+    public event Action OnBuilt; // Optional event for other systems
 
     private void Awake()
     {
@@ -136,7 +128,7 @@ public class RpgMapManager : MonoBehaviour
         return bestTile;
     }
 
-    // 4-direction neighbours (same-height tolerance)
+    // 4-direction neighbours (same-height only)
     public List<OverlayTile> GetFourDirectionNeighbours(OverlayTile currentTile)
     {
         var result = new List<OverlayTile>();
@@ -155,7 +147,10 @@ public class RpgMapManager : MonoBehaviour
         {
             if (!map.TryGetValue(key, out var cand) || cand == null) return;
             float dz = Mathf.Abs(cand.transform.position.z - currentTile.transform.position.z);
-            if (dz < 1f) result.Add(cand);
+            if (Mathf.Approximately(dz, 0f)) // UPDATED 2025-08-08: RPG only allows same-height tiles
+            {
+                result.Add(cand);
+            }
         }
     }
 
@@ -165,29 +160,6 @@ public class RpgMapManager : MonoBehaviour
         var list = new List<OverlayTile>();
         if (!map.TryGetValue(originTile, out var origin) || origin == null) return list;
         return GetFourDirectionNeighbours(origin);
-    }
-
-    // eight directions with same-height tolerance
-    public List<OverlayTile> GetSurroundingTilesEightDirections(Vector2Int originTile)
-    {
-        var list = new List<OverlayTile>();
-        if (!map.TryGetValue(originTile, out var origin) || origin == null) return list;
-
-        for (int dx = -1; dx <= 1; dx++)
-        {
-            for (int dy = -1; dy <= 1; dy++)
-            {
-                if (dx == 0 && dy == 0) continue;
-
-                var key = new Vector2Int(originTile.x + dx, originTile.y + dy);
-                if (!map.TryGetValue(key, out var cand) || cand == null) continue;
-
-                float dz = Mathf.Abs(cand.transform.position.z - origin.transform.position.z);
-                if (dz < 1f) list.Add(cand);
-            }
-        }
-
-        return list;
     }
 
     // Snap all CharacterInfo to nearest overlay center and set standOnTile

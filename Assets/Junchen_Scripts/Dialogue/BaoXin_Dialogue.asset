@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ff9e3b795fd19c44977631f7b6881d9, type: 3}
+  m_Name: BaoXin_Dialogue
+  m_EditorClassIdentifier: 
+  npcId: bao_xin
+  lines:
+  - speakerId: me
+    text: Greetings,sir! I wish to join your army.
+  - speakerId: bao_xin
+    text: You? A common villager? Why do you want to fight?
+  - speakerId: me
+    text: The Yellow Turbans burned my home. I want revenge and rebuild my home.
+  - speakerId: bao_xin
+    text: Hmph... Very well. Prove yourself, and you may join us.
+  - speakerId: bao_xin
+    text: I am sending a small group of my troop.
+  - speakerId: bao_xin
+    text: Join the battle, so you have a chance to prove yourself.
