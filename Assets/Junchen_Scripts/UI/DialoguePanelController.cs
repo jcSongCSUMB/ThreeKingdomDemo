@@ -40,11 +40,23 @@ namespace Junchen_Scripts.UI
             public string text;
         }
 
+        // ---- Typewriter settings (added) ----
+        [Header("Typewriter")]
+        [Tooltip("Enable/disable typewriter effect for body text.")]
+        public bool useTypewriter = true; // Exposed toggle in Inspector
+
+        [Tooltip("How many characters to reveal per second when typing.")]
+        public float charsPerSecond = 30f; // Exposed speed in Inspector
+
         // Internal state
         private List<DialogueLine> _lines;
         private int _index;
         private Action _onFinished;
         private bool _isOpen;
+
+        // Typewriter runtime state (added)
+        private bool _isTyping = false;
+        private Coroutine _typingCoroutine = null;
 
         private void Awake()
         {
@@ -106,7 +118,28 @@ namespace Junchen_Scripts.UI
                 portrait.sprite = portraitSprite;
                 portrait.enabled = (portrait.sprite != null);
             }
-            if (bodyText != null) bodyText.text = line.text ?? string.Empty;
+
+            // Body text rendering
+            if (bodyText != null)
+            {
+                // Set full text first
+                bodyText.text = line.text ?? string.Empty;
+
+                // Stop any previous typing
+                StopTypingIfAny();
+
+                if (useTypewriter)
+                {
+                    // Begin typewriter for this line
+                    _typingCoroutine = StartCoroutine(TypeCurrentBody());
+                }
+                else
+                {
+                    // No typing: show complete line immediately
+                    _isTyping = false;
+                    bodyText.maxVisibleCharacters = int.MaxValue; // ensure fully visible
+                }
+            }
         }
 
         // Advances to the next dialogue line or closes the panel if at the end
@@ -114,6 +147,13 @@ namespace Junchen_Scripts.UI
         {
             if (!_isOpen || _lines == null)
                 return;
+
+            // If typewriter is in progress, first complete current line
+            if (_isTyping && bodyText != null)
+            {
+                CompleteCurrentBodyInstant();
+                return;
+            }
 
             _index++;
             if (_index >= _lines.Count)
@@ -131,6 +171,9 @@ namespace Junchen_Scripts.UI
         {
             _isOpen = false;
 
+            // stop any typing to avoid running coroutines after close
+            StopTypingIfAny();
+
             if (panelRoot != null)
                 panelRoot.SetActive(false);
 
@@ -139,6 +182,83 @@ namespace Junchen_Scripts.UI
 
             _onFinished?.Invoke();
             _onFinished = null;
+        }
+
+        // ---- Typewriter helpers (added) ----
+
+        // Starts revealing body text gradually for the current line
+        private System.Collections.IEnumerator TypeCurrentBody()
+        {
+            if (bodyText == null)
+            {
+                _isTyping = false;
+                yield break;
+            }
+
+            _isTyping = true;
+
+            // Force mesh update to get correct character count
+            bodyText.ForceMeshUpdate();
+            int total = bodyText.textInfo.characterCount;
+
+            // If there are no characters, just finish
+            if (total <= 0)
+            {
+                _isTyping = false;
+                bodyText.maxVisibleCharacters = int.MaxValue;
+                yield break;
+            }
+
+            bodyText.maxVisibleCharacters = 0;
+
+            // Reveal characters over time
+            float visible = 0f;
+            while (visible < total)
+            {
+                visible += charsPerSecond * Time.unscaledDeltaTime; // unscaled keeps speed stable
+                int show = Mathf.Clamp(Mathf.FloorToInt(visible), 0, total);
+                bodyText.maxVisibleCharacters = show;
+                yield return null;
+            }
+
+            // Ensure fully visible at the end
+            bodyText.maxVisibleCharacters = total;
+            _isTyping = false;
+            _typingCoroutine = null;
+        }
+
+        // Instantly completes current line visibility
+        private void CompleteCurrentBodyInstant()
+        {
+            if (bodyText == null) return;
+
+            bodyText.ForceMeshUpdate();
+            int total = bodyText.textInfo.characterCount;
+            bodyText.maxVisibleCharacters = (total > 0) ? total : int.MaxValue;
+
+            _isTyping = false;
+
+            if (_typingCoroutine != null)
+            {
+                StopCoroutine(_typingCoroutine);
+                _typingCoroutine = null;
+            }
+        }
+
+        // Stops any running typewriter coroutine
+        private void StopTypingIfAny()
+        {
+            _isTyping = false;
+            if (_typingCoroutine != null)
+            {
+                StopCoroutine(_typingCoroutine);
+                _typingCoroutine = null;
+            }
+            if (bodyText != null)
+            {
+                // ensure nothing remains hidden if we stop mid-typing
+                bodyText.maxVisibleCharacters = int.MaxValue;
+            }
         }
     }
 }

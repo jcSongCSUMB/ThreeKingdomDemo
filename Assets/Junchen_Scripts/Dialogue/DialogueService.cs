@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; // added for Button
 using Junchen_Scripts.UI; // DialoguePanelController
 
 namespace Junchen_Scripts.Dialogue
@@ -19,6 +20,16 @@ namespace Junchen_Scripts.Dialogue
 
         private int currentLineIndex = 0; // Reserved for future use (e.g., resume)
 
+        // interaction gating during dialogue
+        [Header("Interaction Lock (Optional)")]
+        [Tooltip("The Interact button under the NPC (set non-interactable while dialogue is active).")]
+        [SerializeField] private Button interactButton; // optional
+
+        [Tooltip("Any components to disable while dialogue is active, e.g., RPGClickController.")]
+        [SerializeField] private MonoBehaviour[] disableWhileDialogue; // optional
+
+        private bool isDialogueActive = false; // added
+
         // Public entry point for Interact buttons or other triggers
         public void StartDialogue()
         {
@@ -28,14 +39,27 @@ namespace Junchen_Scripts.Dialogue
                 return;
             }
 
+            if (isDialogueActive)
+            {
+                Debug.Log("[DialogueService] Dialogue already active. Ignored Start.");
+                return;
+            }
+
             if (dialoguePanel != null)
             {
+                Debug.Log("[DialogueService] Start");
+                isDialogueActive = true;
+                SetInteractionEnabled(false);
                 OpenPanelFromAsset();
             }
             else
             {
                 // No panel assigned; fall back to console logging for testing
+                Debug.Log("[DialogueService] Start (console mode)");
+                isDialogueActive = true; // keep consistent, even in console mode
+                SetInteractionEnabled(false);
                 PlayAllLinesToConsole();
+                OnDialogueFinished();
             }
         }
 
@@ -45,6 +69,8 @@ namespace Junchen_Scripts.Dialogue
             if (dialogueAsset.lines == null || dialogueAsset.lines.Count == 0)
             {
                 Debug.LogWarning("[DialogueService] DialogueAsset has no lines.");
+                // nothing to show; finish immediately
+                OnDialogueFinished();
                 return;
             }
 
@@ -59,10 +85,16 @@ namespace Junchen_Scripts.Dialogue
                 });
             }
 
-            dialoguePanel.Open(lines, () =>
-            {
-                Debug.Log("[DialogueService] Dialogue finished (from DialogueService).");
-            });
+            // pass a single, centralized finish callback
+            dialoguePanel.Open(lines, OnDialogueFinished);
+        }
+
+        // Called by DialoguePanelController when dialogue ends
+        private void OnDialogueFinished()
+        {
+            Debug.Log("[DialogueService] End");
+            SetInteractionEnabled(true);
+            isDialogueActive = false;
         }
 
         // Old test path: print all lines to the Console
@@ -73,6 +105,23 @@ namespace Junchen_Scripts.Dialogue
             foreach (var line in dialogueAsset.lines)
             {
                 Debug.Log($"{line.speakerId}: {line.text}");
+            }
+        }
+
+        // unified interaction toggling
+        private void SetInteractionEnabled(bool enabled)
+        {
+            // Do not hide the button here; only toggle clickability.
+            if (interactButton != null)
+                interactButton.interactable = enabled;
+
+            if (disableWhileDialogue != null)
+            {
+                for (int i = 0; i < disableWhileDialogue.Length; i++)
+                {
+                    var comp = disableWhileDialogue[i];
+                    if (comp != null) comp.enabled = enabled;
+                }
             }
         }
     }

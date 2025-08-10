@@ -1495,6 +1495,8 @@ MonoBehaviour:
   - speakerId: bao_xin
     sprite: {fileID: 21300000, guid: 803b4dc8ed524804ea55afe931168640, type: 3}
     displayName: Bao Xin
+  useTypewriter: 1
+  charsPerSecond: 30
 --- !u!1 &1653619529
 GameObject:
   m_ObjectHideFlags: 0
@@ -1728,8 +1730,9 @@ GameObject:
   - component: {fileID: 1826564381}
   - component: {fileID: 1826564383}
   - component: {fileID: 1826564382}
+  - component: {fileID: 1826564384}
   m_Layer: 0
-  m_Name: Liu Dai (NPC)
+  m_Name: Bao Xin(NPC)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1819,6 +1822,24 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1826564384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826564380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58701558cd9c4344c9c7dc9a3761c29d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1971429286}
+  interactRoot: {fileID: 465714480}
+  showThreshold: 2
+  hideThreshold: 3
+  grid: {fileID: 1982803594}
+  useRoundedWorldAsGrid: 1
 --- !u!1 &1923845014
 GameObject:
   m_ObjectHideFlags: 0
@@ -1865,6 +1886,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogueAsset: {fileID: 11400000, guid: 8abb885286853144498423f4e1650ad9, type: 2}
   dialoguePanel: {fileID: 1566323067}
+  interactButton: {fileID: 465714482}
+  disableWhileDialogue:
+  - {fileID: 1068813065}
 --- !u!1 &1971429285
 GameObject:
   m_ObjectHideFlags: 0
