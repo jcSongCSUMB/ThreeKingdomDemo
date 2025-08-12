@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b42779fdc520e74e8f34ea99a404b08, type: 3}
+  m_Name: QuestData
+  m_EditorClassIdentifier: 
+  questId: quest_001
+  title: First Battle
+  description: Reach the target tile to start the battle.
+  targetCell: {x: 0, y: -10}
+  highlightSprite: {fileID: 947946919, guid: 8201b4968c3f08149ab155417871892c, type: 3}
+  battleSceneName: BattleTestLevel
+  showHighlightOnStart: 1

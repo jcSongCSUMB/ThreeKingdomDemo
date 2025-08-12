@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public class NpcInteractActivator : MonoBehaviour
 {
-    public enum PlaneMode { XY, XZ } // NEW: choose which two axes form the grid plane
+    public enum PlaneMode { XY, XZ } // choose which two axes form the grid plane
 
     [Header("References")]
     [Tooltip("Player transform used to measure distance.")]
@@ -20,10 +20,10 @@ public class NpcInteractActivator : MonoBehaviour
 
     [Header("Distance (Manhattan)")]
     [Tooltip("Show Interact when manhattan distance <= this value.")]
-    public int showThreshold = 2;
+    public int showThreshold = 3;   // bumped from 2 -> 3
 
     [Tooltip("Hide Interact when manhattan distance >= this value (should be >= showThreshold).")]
-    public int hideThreshold = 3;
+    public int hideThreshold = 4;   // bumped from 3 -> 4
 
     [Header("Grid/Tilemap (Optional)")]
     [Tooltip("If assigned, uses Grid.WorldToCell(player/npc) to compute tile coordinates.")]
@@ -31,7 +31,7 @@ public class NpcInteractActivator : MonoBehaviour
 
     [Header("Grid Plane")]
     [Tooltip("Choose which two axes define your grid plane. 2D Tilemap usually XY; many isometric layouts use XZ.")]
-    public PlaneMode plane = PlaneMode.XY; // NEW: default XY
+    public PlaneMode plane = PlaneMode.XY;
 
     [Header("Fallback (No Grid)")]
     [Tooltip("If no Grid is assigned, uses rounded world positions as pseudo-grid.")]

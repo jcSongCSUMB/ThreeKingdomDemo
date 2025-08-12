@@ -283,6 +283,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 465714480}
   m_CullTransparentMesh: 1
+--- !u!1 &510255612
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 510255613}
+  - component: {fileID: 510255614}
+  m_Layer: 0
+  m_Name: QuestManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &510255613
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510255612}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1384839303}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &510255614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510255612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78dde0d45ea4fd84a9e7a245153da6d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  map: {fileID: 0}
+  player: {fileID: 1971429288}
+  currentQuest: {fileID: 11400000, guid: d880549cd5661f94aa131f6af516d11a, type: 2}
+  questActive: 0
+  targetTile: {fileID: 0}
+  originalSprite: {fileID: 0}
 --- !u!1 &537588802
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,6 +1243,7 @@ Transform:
   - {fileID: 1826564381}
   - {fileID: 1068813064}
   - {fileID: 1923845015}
+  - {fileID: 510255613}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1413730135
@@ -1836,9 +1887,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1971429286}
   interactRoot: {fileID: 465714480}
-  showThreshold: 2
-  hideThreshold: 3
+  showThreshold: 3
+  hideThreshold: 4
   grid: {fileID: 1982803594}
+  plane: 0
   useRoundedWorldAsGrid: 1
 --- !u!1 &1923845014
 GameObject:
@@ -1889,6 +1941,21 @@ MonoBehaviour:
   interactButton: {fileID: 465714482}
   disableWhileDialogue:
   - {fileID: 1068813065}
+  onDialogueFinished:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 510255614}
+        m_TargetAssemblyTypeName: Junchen_Scripts.Quest.QuestManager, Assembly-CSharp
+        m_MethodName: ActivateCurrentQuest
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1971429285
 GameObject:
   m_ObjectHideFlags: 0

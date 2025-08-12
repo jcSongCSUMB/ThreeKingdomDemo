@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // added for Button
 using Junchen_Scripts.UI; // DialoguePanelController
+using UnityEngine.Events; // NEW
 
 namespace Junchen_Scripts.Dialogue
 {
@@ -29,6 +30,9 @@ namespace Junchen_Scripts.Dialogue
         [SerializeField] private MonoBehaviour[] disableWhileDialogue; // optional
 
         private bool isDialogueActive = false; // added
+
+        [Header("Events")]
+        public UnityEvent onDialogueFinished; // NEW: Invoked when dialogue fully ends
 
         // Public entry point for Interact buttons or other triggers
         public void StartDialogue()
@@ -95,6 +99,10 @@ namespace Junchen_Scripts.Dialogue
             Debug.Log("[DialogueService] End");
             SetInteractionEnabled(true);
             isDialogueActive = false;
+
+            // NEW: fire inspector-bindable event at the very end
+            if (onDialogueFinished != null)
+                onDialogueFinished.Invoke();
         }
 
         // Old test path: print all lines to the Console
