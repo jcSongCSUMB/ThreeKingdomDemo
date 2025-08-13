@@ -293,6 +293,7 @@ GameObject:
   m_Component:
   - component: {fileID: 510255613}
   - component: {fileID: 510255614}
+  - component: {fileID: 510255615}
   m_Layer: 0
   m_Name: QuestManager
   m_TagString: Untagged
@@ -330,9 +331,26 @@ MonoBehaviour:
   map: {fileID: 0}
   player: {fileID: 1971429288}
   currentQuest: {fileID: 11400000, guid: d880549cd5661f94aa131f6af516d11a, type: 2}
+  questHudText: {fileID: 946836282}
+  questHudTemplate: 'Quest: {0}'
   questActive: 0
   targetTile: {fileID: 0}
   originalSprite: {fileID: 0}
+--- !u!114 &510255615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510255612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8155aaf9902fa284ab3c3964dd5d45ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  battleBridge: {fileID: 11400000, guid: 3dff39de118be4e4fa107612159b3083, type: 2}
+  questManager: {fileID: 510255614}
+  hudText: {fileID: 946836282}
 --- !u!1 &537588802
 GameObject:
   m_ObjectHideFlags: 0

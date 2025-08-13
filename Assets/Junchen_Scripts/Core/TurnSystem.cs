@@ -23,7 +23,7 @@ public class TurnSystem : MonoBehaviour
     private List<BaseUnit> allUnits = new List<BaseUnit>();
     private int executingIndex = 0;
 
-    // ====== battle-end bookkeeping ======
+    // battle-end bookkeeping
     [SerializeField] private BattleResultUIController battleResultUI;
     private bool resultShown = false;       // ensure single win/lose trigger
     private int initialPlayerCount;
@@ -31,7 +31,12 @@ public class TurnSystem : MonoBehaviour
 
     // capture initial counts once, at the real start of battle
     private bool initialCaptured = false;
-    // ========================================
+
+    // Bridge (added)
+    [Header("Bridge")]
+    [SerializeField] private BattleBridge battleBridge;             // assign the shared SO asset
+    [SerializeField] private string currentQuestId = "quest_001";   // temp: single-quest demo
+    [SerializeField] private bool logBridgeWrite = false;           // optional debug toggle
 
     private void Awake()
     {
@@ -64,9 +69,6 @@ public class TurnSystem : MonoBehaviour
         initialPlayerCount = UnitDeployManager.Instance.GetAllDeployedPlayerUnits().Count;
         initialEnemyCount  = UnitDeployManager.Instance.GetAllDeployedEnemyUnits().Count;
         initialCaptured = true;
-
-        // TEMP DEBUG // UPDATED 2025-08-06
-        Debug.Log($"[INIT@Plan] initP={initialPlayerCount}, initE={initialEnemyCount}, phase={currentPhase}");
     }
 
     // Transition to the next phase of the turn cycle
@@ -145,11 +147,15 @@ public class TurnSystem : MonoBehaviour
             stats.playerUnitsLost = initialPlayerCount;                        // all lost
             stats.enemyUnitsLost  = Mathf.Max(0, initialEnemyCount - enemies); // clamp >= 0
 
-            // TEMP DEBUG
-            Debug.Log($"[SHOW] outcome=Defeat, lostP={stats.playerUnitsLost}, lostE={stats.enemyUnitsLost}");
-
             if (battleResultUI != null)
                 battleResultUI.Show(BattleOutcome.Defeat, in stats);
+
+            // Bridge write (added)
+            if (battleBridge != null)
+            {
+                battleBridge.Set(currentQuestId, BattleOutcome.Defeat, in stats);
+                if (logBridgeWrite) Debug.Log($"[TurnSystem] Bridge <- Defeat ({currentQuestId})");
+            }
 
             battleStarted = false;
             return true;
@@ -163,11 +169,15 @@ public class TurnSystem : MonoBehaviour
             stats.playerUnitsLost = Mathf.Max(0, initialPlayerCount - players); // clamp >= 0
             stats.enemyUnitsLost  = initialEnemyCount;                          // all lost
 
-            // TEMP DEBUG // UPDATED 2025-08-06
-            Debug.Log($"[SHOW] outcome=Victory, lostP={stats.playerUnitsLost}, lostE={stats.enemyUnitsLost}");
-
             if (battleResultUI != null)
                 battleResultUI.Show(BattleOutcome.Victory, in stats);
+
+            // Bridge write (added)
+            if (battleBridge != null)
+            {
+                battleBridge.Set(currentQuestId, BattleOutcome.Victory, in stats);
+                if (logBridgeWrite) Debug.Log($"[TurnSystem] Bridge <- Victory ({currentQuestId})");
+            }
 
             battleStarted = false;
             return true;

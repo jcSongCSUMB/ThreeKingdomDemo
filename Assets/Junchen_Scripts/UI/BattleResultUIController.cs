@@ -16,7 +16,8 @@ public class BattleResultUIController : MonoBehaviour
     [SerializeField] private Button quitBtn;
 
     [Header("Scenes")]
-    [SerializeField] private string startMenuSceneName = "StartMenu";
+    [SerializeField] private string startMenuSceneName = "StartMenu";        // kept for backward compat (unused now)
+    [SerializeField] private string returnRpgSceneName = "TestSimpleRPG";     // target RPG scene name
 
     private void Awake()
     {
@@ -57,6 +58,7 @@ public class BattleResultUIController : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
 
+    // load configurable RPG scene instead of StartMenu
     private void OnQuit() =>
-        UnityEngine.SceneManagement.SceneManager.LoadScene(startMenuSceneName);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(returnRpgSceneName);
 }

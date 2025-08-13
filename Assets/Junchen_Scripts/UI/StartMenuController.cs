@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class StartMenuController : MonoBehaviour
 {
     [Header("Scene Settings")]
-    [SerializeField] private string battleSceneName = "BattleTestLevel"; // Name in Build Settings
+    [SerializeField] private string firstSceneName = "TestSimpleRPG"; // Name in Build Settings
 
     [Header("Fade Settings")]
     [SerializeField] private CanvasGroup fadeGroup; // Drag FadeOverlay here
@@ -23,10 +23,10 @@ public class StartMenuController : MonoBehaviour
     {
         if (fadeGroup == null)
         {
-            SceneManager.LoadScene(battleSceneName);
+            SceneManager.LoadScene(firstSceneName);
             return;
         }
-        StartCoroutine(LoadSceneWithFade(battleSceneName));
+        StartCoroutine(LoadSceneWithFade(firstSceneName));
     }
 
     // Called by QuitButton

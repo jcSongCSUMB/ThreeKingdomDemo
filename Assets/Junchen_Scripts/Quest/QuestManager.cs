@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro; // NEW: HUD text
 
 namespace Junchen_Scripts.Quest
 {
@@ -14,6 +15,10 @@ namespace Junchen_Scripts.Quest
         public RpgMapManager map;          // optional but recommended (not strictly needed tonight)
         public CharacterInfo player;       // player character that updates standOnTile
         public QuestData currentQuest;     // data-only SO
+
+        [Header("HUD")] // NEW
+        [SerializeField] private TMP_Text questHudText;                 // drag HUD_Canvas/QuestText (optional)
+        [SerializeField] private string questHudTemplate = "Quest: {0}"; // optional format
 
         [Header("State (runtime)")]
         [SerializeField] private bool questActive = false;
@@ -44,7 +49,7 @@ namespace Junchen_Scripts.Quest
                 return;
             }
 
-            // Optional highlight
+            // Optional highlight via sprite swap (kept as-is; may be visually overridden by OverlayTile.Update()).
             if (currentQuest.showHighlightOnStart && currentQuest.highlightSprite != null)
             {
                 var sr = targetTile.GetComponent<SpriteRenderer>();
@@ -55,9 +60,25 @@ namespace Junchen_Scripts.Quest
                 }
             }
 
+            // Visual lock for quest highlight (display-only, no mechanics impact)
+            // Use OverlayTile's "temp blocked" visual channel so OverlayTile.Update() will keep showing tempBlockedSprite.
+            // Also ensure alpha=1 (in case the tile was hidden).
+            targetTile.isTempBlocked = true;            // drives ShowAsTempBlocked() each frame → tempBlockedSprite
+            targetTile.tempBlockedByPlanning = true;    // prevents immediate default reversion path
+            targetTile.ShowTile();                      // make sure it's visible (alpha = 1)
+
             questActive = true;
             lastSeenTile = (player != null) ? player.standOnTile : null;
             Debug.Log($"[QuestManager] Quest activated → target {currentQuest.targetCell}, scene '{currentQuest.battleSceneName}'.");
+
+            // show HUD text on activation (use title if available, fallback literal)
+            if (questHudText != null)
+            {
+                var title = (currentQuest != null && !string.IsNullOrEmpty(currentQuest.title))
+                    ? currentQuest.title
+                    : "Reach the target";
+                questHudText.SetText(string.Format(questHudTemplate, title));
+            }
         }
         
         // Minimal change-detection loop: only reacts when player's standOnTile reference changes.
@@ -74,6 +95,12 @@ namespace Junchen_Scripts.Quest
                 // one-shot trigger
                 questActive = false;
                 loadingBattle = true;
+
+                // clear visual lock before leaving scene (symmetry with activation)
+                targetTile.isTempBlocked = false;
+                targetTile.tempBlockedByPlanning = false;
+                // Optionally restore default look immediately (next frame Update() will also revert):
+                // targetTile.SetToDefaultSprite();
 
                 // (optional) restore sprite before leaving scene
                 if (currentQuest.highlightSprite != null && targetTile != null)
@@ -107,7 +134,7 @@ namespace Junchen_Scripts.Quest
             {
                 var t = all[i];
                 // Inspector shows "Grid Location X,Y,Z" (Vector3Int). Match on X/Y only.
-                // NOTE: field name 'gridLocation' must exist on OverlayTile (as in your project).
+                // field name 'gridLocation' must exist on OverlayTile (as in your project).
                 if (t.gridLocation.x == cell.x && t.gridLocation.y == cell.y)
                     return t;
             }
@@ -117,7 +144,15 @@ namespace Junchen_Scripts.Quest
         // Optional utility if you ever need to cancel the quest without loading the battle.
         public void DeactivateCurrentQuest()
         {
-            if (!questActive) return;
+            if (!questActive && targetTile == null) return;
+
+            // symmetric cleanup for visual lock
+            if (targetTile != null)
+            {
+                targetTile.isTempBlocked = false;
+                targetTile.tempBlockedByPlanning = false;
+                // targetTile.SetToDefaultSprite(); // optional immediate revert
+            }
 
             // restore sprite if we changed it
             if (currentQuest != null && currentQuest.highlightSprite != null && targetTile != null)

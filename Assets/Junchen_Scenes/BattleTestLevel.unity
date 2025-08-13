@@ -3967,6 +3967,7 @@ MonoBehaviour:
   cg: {fileID: 1069360963}
   restartBtn: {fileID: 314394993}
   quitBtn: {fileID: 669199784}
+  startMenuSceneName: StartMenu
 --- !u!1 &1169016456
 GameObject:
   m_ObjectHideFlags: 0
@@ -4015,6 +4016,9 @@ MonoBehaviour:
   currentPhase: 0
   currentTurn: 1
   battleResultUI: {fileID: 1069360964}
+  battleBridge: {fileID: 11400000, guid: 3dff39de118be4e4fa107612159b3083, type: 2}
+  currentQuestId: quest_001
+  logBridgeWrite: 0
 --- !u!1 &1169333198
 GameObject:
   m_ObjectHideFlags: 0
